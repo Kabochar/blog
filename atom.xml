@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://pumkinpie.github.io</id>
-    <title>PumpkinPie&apos;s blog</title>
-    <updated>2019-09-27T09:05:19.796Z</updated>
+    <title>南瓜酱</title>
+    <updated>2019-09-27T09:39:28.690Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://pumkinpie.github.io"/>
     <link rel="self" href="https://pumkinpie.github.io/atom.xml"/>
-    <subtitle>有趣的你，发现了这里</subtitle>
+    <subtitle>有趣的你，很幸运发现了这里</subtitle>
     <logo>https://pumkinpie.github.io/images/avatar.png</logo>
     <icon>https://pumkinpie.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2019, PumpkinPie&apos;s blog</rights>
+    <rights>All rights reserved 2019, 南瓜酱</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>https://pumkinpie.github.io/post/hello-gridea</id>
