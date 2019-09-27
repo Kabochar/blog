@@ -3,21 +3,15 @@
   <head>
     <meta charset="utf-8" >
 
-<title>关于 | PumpkinPie&#39;s blog</title>
+<title>Gridea | PumpkinPie&#39;s blog</title>
 <meta name="description" content="有趣的你，发现了这里">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://pumkinpie.github.io/favicon.ico?v=1569572264343">
+<link rel="shortcut icon" href="https://pumkinpie.github.io/favicon.ico?v=1569572489094">
 <link rel="stylesheet" href="https://pumkinpie.github.io/styles/main.css">
 
-
-  
-    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
-  
-
-  
 
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -35,7 +29,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://pumkinpie.github.io">
-        <img src="https://pumkinpie.github.io/images/avatar.png?v=1569572264343" class="site-logo">
+        <img src="https://pumkinpie.github.io/images/avatar.png?v=1569572489094" class="site-logo">
         <h1 class="site-title">PumpkinPie&#39;s blog</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -104,26 +98,35 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">关于</h2>
-            <div class="post-date">2019-01-25</div>
-            
-            <div class="post-content">
-              <p>这是关于的页面，可以在这里向世界介绍你！</p>
+          <h2 class="current-tag">标签: Gridea</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://pumkinpie.github.io/post/hello-gridea">
+                  <h2 class="post-title">Hello Gridea</h2>
+                </a>
+                <div class="post-date">
+                  2018-12-12
+                </div>
+                <div class="post-abstract">
+                  <p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
+✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
 
-            </div>
-            
-            
-
-            
+                </div>
+              </div>
               
-                <div id="gitalk-container" data-aos="fade-in"></div>
+                <a class="right" href="https://pumkinpie.github.io/post/hello-gridea">
+                  <div class="feature-container" style="background-image: url('https://pumkinpie.github.io/post-images/hello-gridea.png')">
+                  </div>
+                </a>
               
+            </article>
+          
 
-              
-            
-
-          </div>
+          <div class="pagination-container">
+  
+  
+</div>
 
         </div>
       </div>
@@ -145,29 +148,6 @@ var app = new Vue({
 })
 
 </script>
-
-
-  
-  
-    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-    <script>
-
-      var gitalk = new Gitalk({
-        clientID: '605310834e7d0fcdd087',
-        clientSecret: '0561c0edc60366a7c6a571630069289eb86076da',
-        repo: 'pumkinpie.github.io',
-        owner: 'pumkinpie',
-        admin: ['pumkinpie'],
-        id: location.pathname,      // Ensure uniqueness and length less than 50
-        distractionFreeMode: false  // Facebook-like distraction free mode
-      })
-
-      gitalk.render('gitalk-container')
-
-    </script>
-  
-
-  
 
 
 
