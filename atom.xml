@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://github.com/pumkinpie/pumkinpie.github.io</id>
+    <id>https://pumkinpie.github.io</id>
     <title>PumpkinPie&apos;s blog</title>
-    <updated>2019-09-27T08:07:57.020Z</updated>
+    <updated>2019-09-27T08:17:49.974Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://github.com/pumkinpie/pumkinpie.github.io"/>
-    <link rel="self" href="https://github.com/pumkinpie/pumkinpie.github.io/atom.xml"/>
+    <link rel="alternate" href="https://pumkinpie.github.io"/>
+    <link rel="self" href="https://pumkinpie.github.io/atom.xml"/>
     <subtitle>有趣的你，发现了这里</subtitle>
-    <logo>https://github.com/pumkinpie/pumkinpie.github.io/images/avatar.png</logo>
-    <icon>https://github.com/pumkinpie/pumkinpie.github.io/favicon.ico</icon>
+    <logo>https://pumkinpie.github.io/images/avatar.png</logo>
+    <icon>https://pumkinpie.github.io/favicon.ico</icon>
     <rights>All rights reserved 2019, PumpkinPie&apos;s blog</rights>
     <entry>
         <title type="html"><![CDATA[秒杀系统设计-李云华-极客时间]]></title>
-        <id>https://github.com/pumkinpie/pumkinpie.github.io/post/LhWMmvT6n</id>
-        <link href="https://github.com/pumkinpie/pumkinpie.github.io/post/LhWMmvT6n">
+        <id>https://pumkinpie.github.io/post/LhWMmvT6n</id>
+        <link href="https://pumkinpie.github.io/post/LhWMmvT6n">
         </link>
         <updated>2019-04-21T07:17:22.000Z</updated>
         <content type="html"><![CDATA[<p>秒杀系统设计-李云华-极客时间</p>
@@ -207,8 +207,8 @@
     </entry>
     <entry>
         <title type="html"><![CDATA[计算机网络-复习版]]></title>
-        <id>https://github.com/pumkinpie/pumkinpie.github.io/post/computer_network</id>
-        <link href="https://github.com/pumkinpie/pumkinpie.github.io/post/computer_network">
+        <id>https://pumkinpie.github.io/post/computer_network</id>
+        <link href="https://pumkinpie.github.io/post/computer_network">
         </link>
         <updated>2019-04-17T12:11:57.000Z</updated>
         <summary type="html"><![CDATA[<h1 id="计算机网络">计算机网络</h1>
