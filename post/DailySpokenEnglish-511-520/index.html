@@ -24,13 +24,28 @@
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+    <script src="https://libs.baidu.com/jquery/1.5.2/jquery.min.js"></script>
 
     
 
+    
+    
 
     
-    
+    <script>
+        
+        $(window).scroll(function(){
+            if($(document).scrollTop()!=0){
+            localStorage.setItem("offsetTop", $(window).scrollTop());
+            }
+        });
+        
+        window.onload = function(){
+            var offset = localStorage.getItem("offsetTop");
+            $(document).scrollTop(offset);
+        };
+    </script>
 </head>
 
 
@@ -81,11 +96,6 @@
             2020年5月7日
         </date>
         
-        
-        <div class="post-meta">
-            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
-                    阅读</span></span>
-        </div>
         
         
         <div class="post-content">
@@ -151,6 +161,24 @@
         <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://pumkinpie.github.io/post/DailySpokenEnglish-511-520/">https://pumkinpie.github.io/post/DailySpokenEnglish-511-520/</a></li>
         <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
     </ul>
+
+    
+    <div style="padding: 10px 0; margin: 20px auto; width: 100%; font-size:16px; text-align: center;">
+        <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+            <span>赏个鸡腿🍗</span></button>
+        <div id="QR" style="display: none;">
+            <div id="wechat" style="display: inline-block">
+                <a class="fancybox" rel="group">
+                    <img id="alipay_qr" src="https://pumkinpie.github.io//AliPay.png" alt="Ali Pay" ></a>
+                <p>支付宝</p>
+            </div>
+            <div id="alipay" style="display: inline-block">
+                <a class="fancybox" rel="group">
+                    <img id="wechat_qr" src="https://pumkinpie.github.io//WeChatPay.png" alt="WeChat Pay"></a>
+                <p>微信</p>
+            </div>
+        </div>
+    </div>
 </div>
 <br/>
 
@@ -183,26 +211,7 @@
         </div>
     </article>
     
-    <div id="disqus_thread"></div>
-<script type="application/javascript">
-    var disqus_config = function () {
     
-    
-    
-    };
-    (function() {
-        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
-            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
-            return;
-        }
-        var d = document, s = d.createElement('script'); s.async = true;
-        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
 
     
     
@@ -267,39 +276,6 @@
 </ul>
     </section>
 
-    
-<section class="widget">
-    <h3 class="widget-title" style="color:red">福利派送</h3>
-    <ul class="widget-list">
-        
-        <li>
-            <a href="https://www.aliyun.com/minisite/goods?userCode=jdg9oj97&amp;share_source=copy_link" title="【2019双12】ALL IN CLoud 低至1折" target="_blank" style="color:red">
-                
-                    <img src="https://img.alicdn.com/tfs/TB1_rYHo7P2gK0jSZPxXXacQpXa-690-388.jpg">
-                
-            </a>
-        </li>
-        
-        <li>
-            <a href="https://cloud.tencent.com/act/cps/redirect?redirect=1048&amp;cps_key=14ff722692ac784fa8c3301c8c28d924&amp;from=console" title="助力产业智慧升级，云服务器首年88元起，更有千元代金券礼包免费领！" target="_blank" style="color:red">
-                
-                    <img src="https://upload-dianshi-1255598498.file.myqcloud.com/345-7c71532bd4935fbdd9a67c1a71e577b1767b805c.200%E7%89%88%E6%9C%ACB.jpg">
-                
-            </a>
-        </li>
-        
-        <li>
-            <a href="https://www.aliyun.com/acts/limit-buy?userCode=jdg9oj97" title="【渠道专享低折扣】11月特惠 限时2折" target="_blank" style="color:red">
-                
-                    <img src="https://img.alicdn.com/tfs/TB1hblJl7Y2gK0jSZFgXXc5OFXa-750-400.jpg">
-                
-            </a>
-        </li>
-        
-    </ul>
-</section>
-
-
     <section class="widget">
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
@@ -337,6 +313,39 @@
             <li><a href="https://pumkinpie.github.io/index.xml">文章 RSS</a></li>
         </ul>
     </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title" style="color:red">福利派送</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a href="https://www.aliyun.com/minisite/goods?userCode=jdg9oj97&amp;share_source=copy_link" title="【2019双12】ALL IN CLoud 低至1折" target="_blank" style="color:red">
+                
+                    <img src="https://img.alicdn.com/tfs/TB1_rYHo7P2gK0jSZPxXXacQpXa-690-388.jpg">
+                
+            </a>
+        </li>
+        
+        <li>
+            <a href="https://cloud.tencent.com/act/cps/redirect?redirect=1048&amp;cps_key=14ff722692ac784fa8c3301c8c28d924&amp;from=console" title="助力产业智慧升级，云服务器首年88元起，更有千元代金券礼包免费领！" target="_blank" style="color:red">
+                
+                    <img src="https://upload-dianshi-1255598498.file.myqcloud.com/345-7c71532bd4935fbdd9a67c1a71e577b1767b805c.200%E7%89%88%E6%9C%ACB.jpg">
+                
+            </a>
+        </li>
+        
+        <li>
+            <a href="https://www.aliyun.com/acts/limit-buy?userCode=jdg9oj97" title="【渠道专享低折扣】11月特惠 限时2折" target="_blank" style="color:red">
+                
+                    <img src="https://img.alicdn.com/tfs/TB1hblJl7Y2gK0jSZFgXXc5OFXa-750-400.jpg">
+                
+            </a>
+        </li>
+        
+    </ul>
+</section>
+
 </div>
             </div>
         </div>
@@ -346,9 +355,7 @@
         &copy; 2020 <a href="https://pumkinpie.github.io/">柠檬的博客 By 柠檬</a>.
         Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
         
-        <span id="busuanzi_container_site_uv">
-            本站访客数<span id="busuanzi_value_site_uv"></span>人次
-        </span>
+        
         
     </div>
 </footer>
@@ -363,15 +370,13 @@
                 }
             };
     </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+    
 
 
 <a id="rocket" href="#top"></a>
 <script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
 
 
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
 
 
 
