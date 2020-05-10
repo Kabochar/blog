@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on 柠檬🍋</title>
+    <title>Categories on 柠檬</title>
     <link>https://pumkinpie.github.io/categories/</link>
-    <description>Recent content in Categories on 柠檬🍋</description>
+    <description>Recent content in Categories on 柠檬</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
+    <lastBuildDate>Thu, 07 May 2020 23:56:42 +0800</lastBuildDate>
     
 	<atom:link href="https://pumkinpie.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>你好</title>
+      <link>https://pumkinpie.github.io/categories/%E4%BD%A0%E5%A5%BD/</link>
+      <pubDate>Thu, 07 May 2020 23:56:42 +0800</pubDate>
+      
+      <guid>https://pumkinpie.github.io/categories/%E4%BD%A0%E5%A5%BD/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>英语</title>
+      <link>https://pumkinpie.github.io/categories/%E8%8B%B1%E8%AF%AD/</link>
+      <pubDate>Thu, 07 May 2020 23:56:01 +0800</pubDate>
+      
+      <guid>https://pumkinpie.github.io/categories/%E8%8B%B1%E8%AF%AD/</guid>
+      <description></description>
+    </item>
     
   </channel>
 </rss>
