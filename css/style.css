@@ -209,7 +209,7 @@ textarea {
 }
 .post-content a,
 .comment-content a {
-  color: #0789e0;
+  color: #4CAF50;
   border-bottom: 1px solid #ddd;
 }
 .post-meta a:hover,
@@ -430,6 +430,7 @@ textarea {
   margin: 1.4em 0 1.1em;
   border-bottom: 1px solid #eee;
   overflow: hidden;
+  padding-bottom: 12px;
 }
 .post-content pre {
   padding: 1em;
@@ -437,6 +438,7 @@ textarea {
 }
 .post-content code {
   display: inline;
+  font-family: -apple-system-font,BlinkMacSystemFont,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;
 }
 .post-content p code {
   display: inline;
