@@ -78,22 +78,27 @@ th, td {
   content: "\e60d";
 }
 
-/* html {
-  background-color: #fff;
-  filter: invert(100%) hue-rotate(180deg);
-} */
+html {
+  background-color: #ffffff;
+}
 body {
-  background-color: #fff;
+  background-color: #ffffff;
   color: #444;
   font-size: 15px;
+  /* filter: invert(100%) hue-rotate(180deg); */
   /* font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji",sans-serif; */
-  font-family: -apple-system-font,BlinkMacSystemFont,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;
+  font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    Arial, sans-serif;
   /* font-family: "Hoefler Text", "Microsoft Yahei", "Iowan Old Style", "Ovo",
     Georgia, "Times New Roman", "TIBch", "Source Han Sans", "PingFangSC-Regular",
     "Hiragino Sans GB", "STHeiti", "Droid Sans Fallback", "WenQuanYi Micro Hei",sans-serif; */
-  /**-webkit-font-smoothing: antialiased;**/
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+/* body {
+  filter: invert(100%) hue-rotate(180deg);
+} */
 img {
   width: auto;
   height: auto;
@@ -141,7 +146,7 @@ blockquote {
   box-sizing: border-box;
   margin: 2.5em 0;
   padding: 0 0 0 50px;
-  color: #555;
+  color: #828080;
   border-left: none;
 }
 blockquote::before {
@@ -150,7 +155,7 @@ blockquote::before {
   font-family: times;
   font-style: normal;
   font-size: 48px;
-  color: #444;
+  color: #9e9e9e;
   font-weight: bold;
   line-height: 30px;
   margin-left: -50px;
@@ -163,7 +168,9 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: -apple-system-font,BlinkMacSystemFont,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;
+  font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    Arial, sans-serif;
 }
 
 input[type="text"],
@@ -209,7 +216,7 @@ textarea {
 }
 .post-content a,
 .comment-content a {
-  color: #4CAF50;
+  color: #4caf50;
   border-bottom: 1px solid #ddd;
 }
 .post-meta a:hover,
@@ -325,7 +332,7 @@ textarea {
   color: #555;
   text-align: left;
   /**font:bold 25px/1.1 "ff-tisa-web-pro", Cambria, "Times New Roman", Georgia, Times, sans-serif;**/
-  font-size: 2.3em;
+  font-size: 2em;
   font-weight: bold;
 }
 .post-title a,
@@ -400,7 +407,7 @@ textarea {
   border-color: transparent #555 transparent transparent;
 }
 .post-content {
-  font-size: 1.16em;
+  font-size: 1.3em;
   line-height: 1.7;
   color: #444;
   padding-top: 27px;
@@ -413,7 +420,7 @@ textarea {
 .post-content h5,
 .post-content h6 {
   color: #ba3925;
-  margin-bottom:  10px;
+  margin-bottom: 10px;
 }
 
 .post-content h4,
@@ -438,7 +445,9 @@ textarea {
 }
 .post-content code {
   display: inline;
-  font-family: -apple-system-font,BlinkMacSystemFont,"Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei UI","Microsoft YaHei",Arial,sans-serif;
+  font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    Arial, sans-serif;
 }
 .post-content p code {
   display: inline;
@@ -981,8 +990,8 @@ img.alignright {
 }
 .post-archive h2 {
   margin: 0;
-  font: bold 25px / 1.1 "ff-tisa-web-pro", Cambria, "Times New Roman", Georgia,
-    Times, sans-serif;
+  /* font: bold 25px / 1.1 "ff-tisa-web-pro", Cambria, "Times New Roman", Georgia,
+    Times, sans-serif; */
   color: #6e7173;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
