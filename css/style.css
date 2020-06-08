@@ -120,9 +120,12 @@ mark {
 }
 pre,
 code {
-  font-family: Menlo, Monaco, Consolas, "Lucida Console", "Courier New",
-    monospace;
-  font-size: 1.12345em;
+  /* font-family: Menlo, Monaco, Consolas, "Lucida Console", "Courier New",
+    monospace; */
+  font-family: -apple-system-font, BlinkMacSystemFont, "Helvetica Neue",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+    Arial, sans-serif;
+  font-size: 0.875em;
 }
 pre {
   overflow: auto;
@@ -407,7 +410,7 @@ textarea {
   border-color: transparent #555 transparent transparent;
 }
 .post-content {
-  font-size: 1em;
+  font-size: 1.3513em;
   line-height: 1.7;
   color: #444;
   padding-top: 27px;
