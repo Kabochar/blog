@@ -1,1 +1,1 @@
-User-agent: *Allow: /Allow: /post/Allow: /about/Disallow: /categories/Disallow: /archives/Sitemap: https://kabocha.now.sh/index.xml
+User-agent: *Allow: /Allow: /post/Allow: /about/Allow: /categories/Allow: /archives/Sitemap: https://kabocha.now.sh/index.xml
