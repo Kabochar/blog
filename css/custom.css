@@ -1,0 +1,146 @@
+/* busuanzi统计 */
+span#busuanzi_value_page_pv {
+  margin-left: 10px;
+}
+/* busuanzi统计结束 */
+
+/* 面包屑导航 */
+.breadcrumb {
+  background: #fafafa;
+  padding: 4px 15px;
+  margin-bottom: 0px;
+  list-style: none;
+  border-radius: 5px;
+}
+.breadcrumb > li {
+  display: inline-block;
+  opacity: 0.7;
+}
+.breadcrumb > li + li:before {
+  padding: 0 5px;
+  color: #ccc;
+  content: ">";
+}
+.breadcrumb li a {
+  text-decoration: none;
+}
+.dark-theme .breadcrumb {
+  background: #252627;
+}
+
+.page-photos figure {
+  max-width: 80%;
+  margin: 0 auto 3rem;
+}
+.page-photos figure img {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+/* 面包屑导航结束 */
+
+/* TOC 目录 */
+.toc-nav {
+  position: fixed;
+  width: 260px;
+  margin-left: -280px;
+  font-size: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.98);
+  background-clip: padding-box;
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.125);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.125);
+  word-wrap: break-word;
+  white-space: nowrap;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  z-index: 999;
+  cursor: pointer;
+  max-height: 70%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 10px 15px 0px;
+}
+
+.toc-nav ul {
+  overflow: hidden;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.toc-nav .nav-link {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.toc-nav li,
+.toc-nav ul {
+  width: 100%;
+}
+
+.toc-nav .nav-item,
+.toc-nav .nav-link {
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.1rem;
+  padding: 0 5px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  color: #666;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+.toc-nav a.nav-link:hover {
+  background-color: transparent;
+  border-left: 0.025rem solid #38849e;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  color: #38849e;
+}
+
+.toc-nav a.nav-link.active,
+.toc-nav a.nav-link:active {
+  background-color: transparent;
+  color: black;
+  border-left: 0.125rem solid #38849e;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  font-weight: 500;
+}
+
+/* TOC 目录结束 */
+
+/* 打赏reward */
+#QR {
+  padding-top: 20px;
+}
+#QR a {
+  border: 0;
+}
+#QR img {
+  width: 180px;
+  max-width: 100%;
+  display: inline-block;
+  margin: 0.8em 2em 0 2em;
+}
+#rewardButton {
+  border: 1px solid #ccc;
+  line-height: 36px;
+  text-align: center;
+  height: 36px;
+  display: block;
+  border-radius: 4px;
+  -webkit-transition-duration: 0.4s;
+  transition-duration: 0.4s;
+  background-color: #fff;
+  color: #999;
+  margin: 0 auto;
+  padding: 0 25px;
+}
+#rewardButton:hover {
+  color: #f77b83;
+  border-color: #f77b83;
+  outline-style: none;
+}
+/* 打赏reward结束 */
