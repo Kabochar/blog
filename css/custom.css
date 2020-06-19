@@ -41,7 +41,7 @@ span#busuanzi_value_page_pv {
 /* TOC 目录 */
 .toc-nav {
   position: fixed;
-  width: 260px;
+  width: 230px;
   margin-left: -280px;
   font-size: 12px;
   border: 1px solid rgba(0, 0, 0, 0.07);
@@ -65,7 +65,7 @@ span#busuanzi_value_page_pv {
 .toc-nav ul {
   overflow: hidden;
   white-space: nowrap;
-  margin-left: 10px;
+  margin-left: 1px;
 }
 
 .toc-nav .nav-link {
@@ -108,22 +108,24 @@ span#busuanzi_value_page_pv {
   box-shadow: none;
   font-weight: 500;
 }
-
 /* TOC 目录结束 */
 
 /* 打赏reward */
 #QR {
   padding-top: 20px;
 }
+
 #QR a {
   border: 0;
 }
+
 #QR img {
   width: 180px;
   max-width: 100%;
   display: inline-block;
   margin: 0.8em 2em 0 2em;
 }
+
 #rewardButton {
   border: 1px solid #ccc;
   line-height: 36px;
@@ -138,9 +140,21 @@ span#busuanzi_value_page_pv {
   margin: 0 auto;
   padding: 0 25px;
 }
+
 #rewardButton:hover {
   color: #f77b83;
   border-color: #f77b83;
   outline-style: none;
 }
 /* 打赏reward结束 */
+
+/* 上一页下一页 */
+.permalink {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.post-nav .prev,
+.post-nav .next {
+  height: 20px;
+}

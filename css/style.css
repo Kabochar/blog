@@ -299,21 +299,25 @@ textarea {
   color: #444;
   background: none;
 }
+
 .col-8 {
-  width: 800px;
+  width: 75%;
 }
 
 .col-10 {
-  width: 1150px;
+  width: 90%;
 }
+
 .col-12 {
   width: 100%;
 }
+
 .container {
-  width: 1150px;
+  width: 1250px;
   padding: 0 60px;
   margin: 0 auto;
 }
+
 #secondary {
   float: right;
   width: 245px;
@@ -323,6 +327,7 @@ textarea {
   display: block;
   padding-top: 40px;
 }
+
 #main {
   padding-top: 20px;
   float: left;
@@ -334,7 +339,6 @@ textarea {
   margin: 0;
   color: #555;
   text-align: left;
-  /**font:bold 25px/1.1 "ff-tisa-web-pro", Cambria, "Times New Roman", Georgia, Times, sans-serif;**/
   font-size: 2em;
   font-weight: bold;
 }
