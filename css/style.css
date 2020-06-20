@@ -448,7 +448,7 @@ textarea {
 }
 .post-content pre {
   padding: 0.8em;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 .post-content code {
   display: inline;
@@ -484,6 +484,7 @@ textarea {
 /* new add  */
 .highlight {
   font-size: 0.75em;
+  margin-bottom: 20px;
 }
 .archive-title {
   padding-top: 20px;
