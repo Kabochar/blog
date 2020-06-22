@@ -160,3 +160,16 @@ span#busuanzi_value_page_pv {
   height: 20px;
 }
 
+/* // 顶部阅读进度条 */
+.top-scroll-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    display: none;
+    width: 0;
+    height: 3px;
+    background: #4CAF50;
+}
+
+/* 顶部阅读进度结束 */
