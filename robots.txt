@@ -1,0 +1,1 @@
+User-agent: *Allow: /Allow: /post/Allow: /about/Allow: /categories/Allow: /archives/Disallow: /images/AliPay.pngDisallow: /images/WeChatPay.pngDisallow: /2020M*Sitemap: https://kabocha.now.sh/index.xml
