@@ -1,0 +1,89 @@
+body.dark {
+  /* background: #282c34; */
+  filter: invert(100%);
+}
+body.dark #body {
+  color: white;
+}
+
+.post-title p,
+.post-title h1,
+.post-title h2,
+.post-title h3,
+.post-title h4,
+.post-title h5,
+.post-title ul,
+.post-title ol,
+.post-title iframe,
+.post-title div.post-inline {
+  color: white;
+  font-weight: 400;
+}
+
+body.dark-theme .post-title p,
+body.dark-theme .post-title h1,
+body.dark-theme .post-title h2,
+body.dark-theme .post-title h3,
+body.dark-theme .post-title h4,
+body.dark-theme .post-title h5,
+body.dark-theme .post-title ul,
+body.dark-theme .post-title ol,
+body.dark-theme .post-title iframe,
+body.dark-theme .post-title div.post-inline {
+  color: white;
+}
+
+.post-title h1,
+.post-title h2,
+.post-title h3,
+.post-title h4,
+.post-title h5 {
+  font-weight: 700;
+  font-style: normal;
+}
+
+body.dark .post-title a,
+.keyword {
+  color: #efefefde;
+}
+
+/* logo */
+body.dark #logo {
+  color: #efefefde;
+}
+
+/* 内容 */
+body.dark .post .post-content {
+  color: #c4c4c4;
+}
+
+/* 引用 */
+body.dark .post .post-content blockquote {
+  color: #c4c4c4;
+}
+
+/* 阅读全文 */
+body.dark .readmore a {
+  color: #ddd;
+}
+
+body.dark .readmore a:hover {
+	color: black;
+  }
+
+body.dark #secondary .widget-title,
+body.dark #secondary .widget-list li a {
+  color: #ddd;
+}
+
+body.dark  #nav-menu a{
+    color: white;
+}
+
+body.dark-theme .post-title h1,
+body.dark-theme .post-title h2,
+body.dark-theme .post-title h3,
+body.dark-theme .post-title h4,
+body.dark-theme .post-title h5 {
+  font-weight: 200;
+}
