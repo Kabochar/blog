@@ -189,3 +189,9 @@ span#busuanzi_value_page_pv {
   background-color: #35a935;
 }
 /* 顶部阅读进度结束 */
+
+/* 分类颜色 */
+.meta-category a {
+  color: #4CAF50;
+}
+/* 分类颜色结束 */
