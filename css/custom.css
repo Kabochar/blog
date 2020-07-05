@@ -200,7 +200,6 @@ span#busuanzi_value_page_pv {
 .post-content p {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* TODO 需要添加注释 */
@@ -209,7 +208,7 @@ span#busuanzi_value_page_pv {
   /* 设置格子背景 */
   body {
     opacity: 1;
-    background-color: #f4f4f4;
+    background-color: #8a8a8a08;
     background-image: linear-gradient(
         transparent 49px,
         #dedfdf36 49px,
@@ -299,9 +298,11 @@ span#busuanzi_value_page_pv {
   .page-navigator a:hover {
     color: #4caf50;
   }
+  .page-navigator .current a.current {
+    color: #4caf50;
+  }
 
   /* 继续阅读 */
-
   .readmore a {
     color: green;
   }

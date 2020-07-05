@@ -4,6 +4,7 @@
     url("fonts/icomoon.ttf?-i5ysuu") format("truetype");
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 body,
 h1,
@@ -891,7 +892,6 @@ img.alignright {
     height: 27px;
     font-size: 13px;
   }
-  
 }
 @media print, screen and (max-width: 500px) {
   .col2 {
