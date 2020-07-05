@@ -233,7 +233,7 @@ textarea {
   margin: 0;
 }
 #logo {
-  font-size: 37.5px;
+  /* font-size: 37.5px; */
   font-weight: bold;
   color: #555;
 }
@@ -344,7 +344,7 @@ textarea {
   display: inline-block;
 }
 .meta-category a {
-  position: relative;
+  /* position: relative; */
 }
 .meta-tags {
   display: inline-block;
