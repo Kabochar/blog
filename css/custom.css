@@ -204,7 +204,7 @@ span#busuanzi_value_page_pv {
 
 /* TODO 需要添加注释 */
 /* 屏幕尺寸超过1024px才更换新css */
-@media screen and (min-width: 1024px) {
+@media screen and (min-width: 850px) {
   /* 设置格子背景 */
   body {
     opacity: 1;
@@ -422,7 +422,7 @@ span#busuanzi_value_page_pv {
 }
 
 /* 小屏幕样式设计 */
-@media print, screen and (max-width: 860px) {
+@media print, screen and (max-width: 850px) {
   #header {
     width: auto;
     margin: 0 auto;
@@ -482,3 +482,10 @@ span#busuanzi_value_page_pv {
   /* 导航栏结束 */
 }
 /* 小屏幕样式设计结束 */
+
+/* a 标签过长自动换行 */
+a,
+button.submit {
+  word-wrap: break-word;
+}
+/* a标签自动换行结束 */
