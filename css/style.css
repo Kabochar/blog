@@ -400,7 +400,7 @@ textarea {
   font-size: 16.5px;
   line-height: 1.7;
   color: #444;
-  padding-top: 27px;
+  padding-top: 15px;
 }
 .post-content h1,
 .post-content h2,
@@ -414,8 +414,11 @@ textarea {
 .page-content {
   padding-top: 40px;
 }
+.post-content h1,
+.post-content h2,
 .post-content h3,
-.post-content h2 {
+.post-content h4,
+.post-content h5 {
   margin: 0.95em 0 0.5em;
   border-bottom: 0.8px solid #4caf50;
   overflow: hidden;
@@ -439,6 +442,7 @@ textarea {
 }
 .post-content p {
   margin: 0 0 0.8em;
+  word-wrap: break-word;
 }
 .post-content img {
   padding: 1em 0;
@@ -973,14 +977,15 @@ img.alignright {
 .readmore a {
   font-size: 14px;
   color: #444;
-  margin: -10px 0;
+  margin: -20px 0;
   padding: 5px 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
   float: right;
 }
 .readmore a:hover {
-  background: #f8f8f8;
+  background: #4caf50;
+  color: white;
   border-bottom-color: #d26911;
 }
 .post-copyright {
@@ -1037,19 +1042,19 @@ table tr td {
   padding: 0.5em 1em;
   text-align: left;
 }
-@media screen and (min-width: 850px) {
+@media screen and (min-width:850px) {
   body {
     opacity: 1;
     background-color: #8a8a8a08;
     background-image: linear-gradient(
-        transparent 49px,
+        #0000000a 49px,
         #dedfdf36 49px,
         #dedfdf36 51px,
         transparent 51px
       ),
       linear-gradient(
         90deg,
-        transparent 49px,
+        #00000008 49px,
         #dedfdf36 49px,
         #dedfdf36 51px,
         transparent 51px
