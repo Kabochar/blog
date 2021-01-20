@@ -419,12 +419,13 @@ textarea {
 .post-content h3,
 .post-content h4,
 .post-content h5 {
-  margin: 0.95em 0 0.5em;
+  margin: 0.95em 0 0.75em;
   border-bottom: 0.8px solid #4caf50;
   overflow: hidden;
   padding-left: 15px;
   border-left: 4px solid #4caf50;
   background-color: #f9f9f9;
+  border-radius: 3px;
 }
 .post-content pre {
   padding: 0.8em;
@@ -482,6 +483,7 @@ textarea {
   padding: 25px 0 0;
   font-size: 16px;
   text-align: center;
+  border-radius: 5px;
 }
 .page-navigator li {
   display: inline-block;
@@ -494,6 +496,7 @@ textarea {
   line-height: 25px;
   padding: 5px 9px;
   border: 1px solid #ddd;
+  border-radius: 5px;
 }
 .page-navigator a:hover {
   background: #f8f8f8;
