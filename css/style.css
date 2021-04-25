@@ -981,6 +981,12 @@ img.alignright {
 .post-archive .date {
   padding-right: 0.7em;
 }
+/* 分类页 */
+.post-archive .post-category, .post-archive .archive {
+    background-color: white;
+    padding: 0px 30px 30px;
+    border-radius: 5px;
+}
 .readmore a {
   font-size: 14px;
   color: #444;
