@@ -1,7 +1,0 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>地基 - 分类 - 卡布茶的博客</title>
-        <link>http://localhost:1313/categories/%E5%9C%B0%E5%9F%BA/</link>
-        <description>地基 - 分类 - 卡布茶的博客</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><atom:link href="http://localhost:1313/categories/%E5%9C%B0%E5%9F%BA/" rel="self" type="application/rss+xml" /></channel>
-</rss>
