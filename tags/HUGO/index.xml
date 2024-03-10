@@ -1,1 +1,7 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>HUGO - 标签 - 卡布茶的博客</title><link>https://kabocha.top/tags/hugo/</link><description>HUGO - 标签 - 卡布茶的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 16 Jun 2020 00:33:35 +0800</lastBuildDate><atom:link href="https://kabocha.top/tags/hugo/" rel="self" type="application/rss+xml"/><item><title>Hugo Maupassant 主题美化</title><link>https://kabocha.top/posts/hugo-theme-beautification/</link><pubDate>Tue, 16 Jun 2020 00:33:35 +0800</pubDate><author><name>卡布茶</name></author><guid>https://kabocha.top/posts/hugo-theme-beautification/</guid><description>博客来源于飞雪老大的 Maupassant 主题。虽然原 Maupassant 模板已经很强大了，但是个人觉得一些小的体验内容稍有欠缺，所以为此找了不少文章进行美化。下面将会列出本博客</description></item></channel></rss>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>HUGO - 标签 - 卡布茶的博客</title>
+        <link>http://localhost:1313/tags/hugo/</link>
+        <description>HUGO - 标签 - 卡布茶的博客</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><atom:link href="http://localhost:1313/tags/hugo/" rel="self" type="application/rss+xml" /></channel>
+</rss>
