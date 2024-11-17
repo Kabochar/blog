@@ -1,7 +1,9 @@
 # 「译文」Students Stand Up, Rally Against Cyberbullying
 
 
-今天试着翻译下 tweentribune 这篇「Students Stand Up, Rally Against Cyberbullying」，主要描述了佛蒙特州一所高中反击网络欺凌行为。下面开始吧
+<!--more-->
+
+今天翻译下 tweentribune 这篇「Students Stand Up, Rally Against Cyberbullying」，主要描述了佛蒙特州一所高中反击网络欺凌行为。下面开始吧
 
 ## 原文
 

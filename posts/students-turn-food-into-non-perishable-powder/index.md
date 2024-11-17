@@ -1,6 +1,8 @@
 # 「译文」Students Turn Food Into Non Perishable Powder
 
 
+<!--more-->
+
 今天试着翻译下 tweentribune 这篇「Students Turn Food Into Non Perishable Powder」，主要描述一群学生如何处理过期食物。下面开始吧
 
 原文地址：[students-turn-food-non-perishable-powder](https://www.tweentribune.com/article/junior/students-turn-food-non-perishable-powder/)

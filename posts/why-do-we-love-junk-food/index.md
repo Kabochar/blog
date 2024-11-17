@@ -1,7 +1,9 @@
 # 「译文」Why Do We Love Junk Food？
 
 
-今天的主题是：探究为什么我们会喜欢垃圾食品？
+<!--more-->
+
+今天试着翻译下 tweentribune 这篇「Why do we love junk food?」，主要探究为什么会学生们自己喜欢垃圾食品？
 
 原文地址：[why-do-we-love-junk-food](https://www.tweentribune.com/article/junior/why-do-we-love-junk-food/)
 

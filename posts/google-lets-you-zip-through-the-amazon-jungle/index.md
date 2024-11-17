@@ -1,6 +1,8 @@
 # 「译文」Google Lets You Zip Through the Amazon Jungle
 
 
+<!--more-->
+
 今天试着翻译下 tweentribune 这篇「Google Lets You Zip Through the Amazon Jungle」，主要描述Google在实景相机的经历。下面开始吧
 
 原文地址：[now-google-lets-you-zip-through-amazon-jungle](https://www.tweentribune.com/article/junior/now-google-lets-you-zip-through-amazon-jungle/)
