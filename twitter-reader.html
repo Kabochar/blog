@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter 书签查看器</title>
+    <style>
+        :root {
+            /* 主色调 - Twitter 蓝 */
+            --primary-color: #1d9bf0;
+            --primary-hover: #1a8cd8;
+            --primary-light: #e8f5fe;
+
+            /* 语义色 */
+            --success-color: #00be4f;
+            --success-bg: #e8f9ed;
+            --warning-color: #ffad1f;
+            --warning-bg: #fff8e8;
+            --danger-color: #f4212e;
+            --danger-bg: #ffe9e9;
+
+            /* 中性色 */
+            --bg-color: #f7f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #0f1419;
+            --text-secondary: #536471;
+            --text-tertiary: #8b98a5;
+            --border-color: #eff3f4;
+            --divider-color: #eff3f4;
+
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+            /* 圆角 */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+
+            /* 过渡 */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 头部卡片 */
+        .header {
+            background: var(--card-bg);
+            padding: 24px 28px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .stats-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stats-num {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-full);
+            font-size: 15px;
+            outline: none;
+            background: var(--card-bg);
+            transition: all var(--transition-fast);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        /* 上传区域 */
+        .upload-box {
+            margin-bottom: 24px;
+            padding: 32px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 2px dashed var(--border-color);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--primary-color), #0c7abf);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            box-shadow: 0 2px 8px rgba(29, 155, 240, 0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(29, 155, 240, 0.4);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        .upload-hint {
+            margin-left: 16px;
+            color: var(--text-tertiary);
+            font-size: 14px;
+        }
+
+        /* 表格容器 */
+        .table-wrapper {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--divider-color);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--divider-color);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: background var(--transition-fast);
+        }
+
+        tbody tr:hover {
+            background: var(--primary-light);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 头像 */
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+            border: 2px solid var(--bg-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 用户信息 */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-names {
+            line-height: 1.3;
+        }
+
+        .user-names strong {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .username {
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        /* 内容列 */
+        .content {
+            max-width: 420px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            word-break: break-word;
+            transition: opacity var(--transition-fast);
+        }
+
+        .content a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .content img {
+            max-width: 100px;
+            max-height: 70px;
+            border-radius: var(--radius-sm);
+            margin-top: 8px;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .content img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 媒体标签 */
+        .media-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 6px;
+        }
+
+        .media-image {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .media-video {
+            background: var(--warning-bg);
+            color: #d48806;
+        }
+
+        .media-gif {
+            background: #f9e8ff;
+            color: #ab47bc;
+        }
+
+        .media-link {
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        /* 时间 */
+        .time {
+            color: var(--text-tertiary);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* 互动数据 */
+        .engagement {
+            display: flex;
+            gap: 16px;
+        }
+
+        .engagement-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .engagement-item.likes {
+            color: #f91880;
+        }
+
+        .engagement-item.retweets {
+            color: #00be4f;
+        }
+
+        /* 操作按钮 */
+        .actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            background: var(--bg-color);
+            color: var(--text-secondary);
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+
+        .actions a:hover {
+            background: var(--primary-color);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        /* 状态标签 */
+        .cache-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--success-bg);
+            color: var(--success-color);
+            border-radius: var(--radius-full);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .cache-status.error {
+            background: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+        /* 清空缓存按钮 */
+        .clear-cache {
+            padding: 6px 14px;
+            background: var(--danger-bg);
+            color: var(--danger-color);
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            margin-left: 10px;
+        }
+
+        .clear-cache:hover {
+            background: var(--danger-color);
+            color: #fff;
+        }
+
+        /* 空状态 */
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 24px;
+            padding: 20px 24px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .pagination button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            padding: 0 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pagination .page-size {
+            margin-left: 16px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            outline: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .pagination .page-size:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .content {
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .stats {
+                gap: 12px;
+            }
+
+            .upload-box {
+                padding: 24px;
+            }
+
+            .upload-hint {
+                display: block;
+                margin: 12px 0 0;
+            }
+
+            th, td {
+                padding: 12px 14px;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+            }
+
+            .content {
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Twitter 书签</h1>
+            <div class="stats" id="stats">
+                <span>等待导入数据...</span>
+            </div>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
+        </div>
+        <div class="upload-box" style="margin-bottom:20px;padding:20px;background:#fff;border-radius:16px;text-align:center;">
+            <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                选择文件导入
+            </button>
+            <span class="upload-hint">支持 .json 或 .jsonl 格式</span>
+        </div>
+        <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:50px">头像</th>
+                    <th style="width:160px">用户</th>
+                    <th>内容</th>
+                    <th style="width:100px">媒体</th>
+                    <th style="width:120px">时间</th>
+                    <th style="width:100px">互动</th>
+                    <th style="width:90px">操作</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        </div>
+        <div class="pagination" id="pagination" style="display:none;">
+            <button id="prevBtn" onclick="prevPage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                上一页
+            </button>
+            <span class="page-info" id="pageInfo"></span>
+            <button id="nextBtn" onclick="nextPage()">
+                下一页
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+            <select class="page-size" id="pageSize" onchange="changePageSize()">
+                <option value="20">20 条/页</option>
+                <option value="50">50 条/页</option>
+                <option value="100">100 条/页</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        let tweets = [];
+        let filteredTweets = [];
+        let currentPage = 1;
+        let pageSize = 20;
+        let db = null;
+        let bm25Index = null;
+        const DB_NAME = 'TwitterBookmarkDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'tweets';
+        const BM25_K1 = 1.5;
+        const BM25_B = 0.75;
+
+        // 打开 IndexedDB
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains(STORE_NAME)) {
+                        database.createObjectStore(STORE_NAME, { keyPath: 'tweet_id' });
+                    }
+                };
+            });
+        }
+
+        // 保存数据到 IndexedDB
+        async function saveTweets(data) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    if (!db) await openDB();
+
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+
+                    // 先清空旧数据
+                    store.clear();
+
+                    // 保存新数据
+                    data.forEach(item => store.put(item));
+
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // 从 IndexedDB 读取数据
+        async function loadTweets() {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    if (!db) await openDB();
+
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.getAll();
+
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // 清空缓存
+        async function clearCache() {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    if (!db) await openDB();
+
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.clear();
+
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = () => reject(transaction.error);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
+        // 简单分词函数（中文按字，英文按词）
+        function tokenize(text) {
+            return text.toLowerCase()
+                .replace(/[^\w\u4e00-\u9fff]/g, ' ')
+                .split(/\s+/)
+                .filter(word => word.length > 1);
+        }
+
+        // 构建 BM25 索引
+        function buildBm25Index(docs) {
+            const docLengths = docs.map(doc => {
+                const text = (doc.full_text || '') + ' ' + (doc.username || '') + ' ' + (doc.screen_name || '');
+                return tokenize(text).length;
+            });
+
+            const avgDocLength = docLengths.reduce((a, b) => a + b, 0) / docs.length;
+
+            // 构建词到文档 ID 的映射
+            const termDocMap = new Map();
+            docs.forEach((doc, docId) => {
+                const text = (doc.full_text || '') + ' ' + (doc.username || '') + ' ' + (doc.screen_name || '');
+                const terms = [...new Set(tokenize(text))];
+                terms.forEach(term => {
+                    if (!termDocMap.has(term)) {
+                        termDocMap.set(term, new Set());
+                    }
+                    termDocMap.get(term).add(docId);
+                });
+            });
+
+            return { docs, docLengths, avgDocLength, termDocMap, N: docs.length };
+        }
+
+        // BM25 搜索
+        function bm25Search(query, index) {
+            const terms = tokenize(query);
+            if (terms.length === 0) return [];
+
+            const scores = new Map();
+
+            terms.forEach(term => {
+                const docSet = index.termDocMap.get(term);
+                if (!docSet) return;
+
+                const n = docSet.size;
+                const idf = Math.log((index.N - n + 0.5) / (n + 0.5) + 1);
+
+                docSet.forEach(docId => {
+                    const text = (index.docs[docId].full_text || '') + ' ' + (index.docs[docId].username || '');
+                    const tf = tokenize(text).filter(t => t === term).length;
+
+                    const numerator = tf * (BM25_K1 + 1);
+                    const denominator = tf + BM25_K1 * (1 - BM25_B + BM25_B * (index.docLengths[docId] / index.avgDocLength));
+                    const score = idf * (numerator / denominator);
+
+                    scores.set(docId, (scores.get(docId) || 0) + score);
+                });
+            });
+
+            return Array.from(scores.entries())
+                .sort((a, b) => b[1] - a[1])
+                .map(([docId]) => index.docs[docId]);
+        }
+
+        // 跳转到指定页
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredTweets.length / pageSize);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+            renderPagination();
+        }
+
+        // 上一页
+        function prevPage() {
+            goToPage(currentPage - 1);
+        }
+
+        // 下一页
+        function nextPage() {
+            goToPage(currentPage + 1);
+        }
+
+        // 切换每页数量
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        }
+
+        // 渲染分页控件
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageInfo = document.getElementById('pageInfo');
+
+            if (filteredTweets.length === 0) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            pagination.style.display = 'flex';
+            const totalPages = Math.ceil(filteredTweets.length / pageSize);
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, filteredTweets.length);
+
+            pageInfo.textContent = `显示 ${start}-${end} 条，共 ${filteredTweets.length} 条`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+        }
+
+        function renderStats() {
+            const stats = document.getElementById('stats');
+            const total = tweets.length;
+            const withImage = tweets.filter(t => t.has_image).length;
+            const withVideo = tweets.filter(t => t.has_video).length;
+            const withLink = tweets.filter(t => t.has_link).length;
+
+            stats.innerHTML = `
+                <span>共 <strong class="stats-num">${total}</strong> 条推文</span>
+                <span>图片 <strong class="stats-num">${withImage}</strong></span>
+                <span>视频 <strong class="stats-num">${withVideo}</strong></span>
+                <span>链接 <strong class="stats-num">${withLink}</strong></span>
+            `;
+        }
+
+        // 格式化时间
+        function formatTime(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            if (diff < 2592000000) return Math.floor(diff / 86400000) + '天前';
+
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // 截断文本，超长时显示省略号
+        function truncateText(text, maxLength = 120) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // 格式化推文内容，将 URL 转换为可点击链接
+        function formatContent(text, tweet) {
+            // 先截断纯文本部分
+            let html = truncateText(text).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // 替换 URL 为可点击链接
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            html = html.replace(urlRegex, url => {
+                let displayUrl = url;
+                if (url.includes('t.co') || url.includes('x.com/i/communities')) {
+                    displayUrl = url;
+                } else if (url.length > 40) {
+                    displayUrl = url.substring(0, 40) + '...';
+                }
+                return `<a href="${url}" target="_blank">${displayUrl}</a>`;
+            });
+
+            // 显示第一张图片缩略图
+            if (tweet.media_items && tweet.media_items.length > 0) {
+                const firstMedia = tweet.media_items[0];
+                if (firstMedia.media_url_https) {
+                    html += `<br><img src="${firstMedia.media_url_https}" alt="预览图" onclick="window.open('${firstMedia.expanded_url}', '_blank')">`;
+                }
+            }
+
+            return html;
+        }
+
+        // 获取媒体类型标签
+        function getMediaBadge(tweet) {
+            const badges = [];
+            if (tweet.has_image) badges.push('<span class="media-badge media-image">图</span>');
+            if (tweet.has_video) badges.push('<span class="media-badge media-video">视频</span>');
+            if (tweet.has_gif) badges.push('<span class="media-badge media-gif">GIF</span>');
+            if (tweet.has_link) badges.push('<span class="media-badge media-link">链</span>');
+            return badges.join('');
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+
+            if (filteredTweets.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📭</div><p>没有找到匹配的推文</p></td></tr>';
+                return;
+            }
+
+            // 只渲染当前页的数据
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredTweets.slice(start, end);
+
+            tableBody.innerHTML = pageData.map(tweet => `
+                <tr>
+                    <td>
+                        <img class="avatar" src="${tweet.avatar_url || ''}" alt="头像">
+                    </td>
+                    <td>
+                        <div class="user-info">
+                            <div class="user-names">
+                                <div><strong>${tweet.username || ''}</strong></div>
+                                <div class="username">@${tweet.screen_name || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="content">${formatContent(tweet.full_text || '', tweet)}</td>
+                    <td>${getMediaBadge(tweet)}</td>
+                    <td class="time">${formatTime(tweet.created_at || 0)}</td>
+                    <td>
+                        <div class="engagement">
+                            <span class="engagement-item likes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                                ${tweet.favorite_count || 0}
+                            </span>
+                            <span class="engagement-item retweets">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7h-2z"/>
+                                </svg>
+                                ${tweet.retweet_count || 0}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="actions">
+                        <a href="https://x.com/${tweet.screen_name}/status/${tweet.tweet_id}" target="_blank">查看</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 搜索功能
+        let searchTimeout = null;
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (!query) {
+                    filteredTweets = [...tweets];
+                } else if (bm25Index) {
+                    filteredTweets = bm25Search(query, bm25Index);
+                } else {
+                    const lowerQuery = query.toLowerCase();
+                    filteredTweets = tweets.filter(tweet => {
+                        const text = (tweet.full_text || '').toLowerCase();
+                        const username = (tweet.username || '').toLowerCase();
+                        const screenName = (tweet.screen_name || '').toLowerCase();
+                        return text.includes(lowerQuery) || username.includes(lowerQuery) || screenName.includes(lowerQuery);
+                    });
+                }
+
+                currentPage = 1;
+                renderTable();
+                renderPagination();
+            }, 150);
+        });
+
+        // 文件导入功能
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const text = event.target.result;
+                    const lines = text.trim().split('\n');
+
+                    tweets = lines.map(line => {
+                        try {
+                            return JSON.parse(line);
+                        } catch {
+                            return null;
+                        }
+                    }).filter(Boolean);
+
+                    if (tweets.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📄</div><p>文件中没有有效的推文数据</p></td></tr>';
+                        return;
+                    }
+
+                    filteredTweets = [...tweets].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    currentPage = 1; // 重置到第一页
+                    renderStats();
+                    renderTable();
+                    renderPagination();
+                } catch (error) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">⚠️</div><p>解析失败: ' + error.message + '</p></td></tr>';
+                }
+            };
+            reader.onerror = function() {
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">❌</div><p>读取文件失败</p></td></tr>';
+            };
+            reader.readAsText(file);
+        });
+
+        // 页面加载时尝试读取缓存
+        async function initFromCache() {
+            try {
+                const cachedTweets = await loadTweets();
+                if (cachedTweets && cachedTweets.length > 0) {
+                    tweets = cachedTweets.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    filteredTweets = [...tweets];
+                    bm25Index = buildBm25Index(filteredTweets);
+                    currentPage = 1;
+                    renderStats();
+                    renderTable();
+                    renderPagination();
+                    showCacheStatus(true, `已加载缓存 (${cachedTweets.length} 条)`);
+                } else {
+                    document.getElementById('stats').innerHTML = '<span>等待导入数据...</span>';
+                }
+            } catch (error) {
+                showCacheStatus(false, '加载缓存失败');
+                console.error('加载缓存失败:', error);
+            }
+        }
+
+        // 显示缓存状态
+        function showCacheStatus(success, message) {
+            const stats = document.getElementById('stats');
+            stats.innerHTML = success
+                ? `<span>${message}</span><span class="cache-status">已缓存</span><button class="clear-cache" onclick="handleClearCache()">清空缓存</button>`
+                : `<span>${message}</span><span class="cache-status error">缓存异常</span>`;
+        }
+
+        // 处理清空缓存
+        async function handleClearCache() {
+            try {
+                await clearCache();
+                tweets = [];
+                filteredTweets = [];
+                bm25Index = null;
+                currentPage = 1;
+                document.getElementById('stats').innerHTML = '<span>等待导入数据...</span>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🗑️</div><p>缓存已清空，请重新导入</p></td></tr>';
+                document.getElementById('pagination').style.display = 'none';
+            } catch (error) {
+                alert('清空缓存失败: ' + error.message);
+            }
+        }
+
+        // 文件导入功能
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
+
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const text = event.target.result;
+                    const lines = text.trim().split('\n');
+
+                    tweets = lines.map(line => {
+                        try {
+                            return JSON.parse(line);
+                        } catch {
+                            return null;
+                        }
+                    }).filter(Boolean);
+
+                    if (tweets.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📄</div><p>文件中没有有效的推文数据</p></td></tr>';
+                        return;
+                    }
+
+                    // 保存到 IndexedDB
+                    await saveTweets(tweets);
+
+                    filteredTweets = [...tweets].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    bm25Index = buildBm25Index(filteredTweets);
+                    currentPage = 1;
+                    renderStats();
+                    renderTable();
+                    renderPagination();
+                    showCacheStatus(true, `已加载 ${tweets.length} 条`);
+                } catch (error) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">⚠️</div><p>解析失败: ' + error.message + '</p></td></tr>';
+                }
+            };
+            reader.onerror = function() {
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">❌</div><p>读取文件失败</p></td></tr>';
+            };
+            reader.readAsText(file);
+        });
+
+        // 初始化
+        initFromCache();
+    </script>
+</body>
+</html>
