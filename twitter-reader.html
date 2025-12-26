@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Twitter 书签查看器</title>
     <style>
         :root {
@@ -66,18 +67,33 @@
         /* 头部卡片 */
         .header {
             background: var(--card-bg);
-            padding: 24px 28px;
+            padding: 20px 28px;
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow-md);
             margin-bottom: 24px;
             border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-main {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
         }
 
         .header h1 {
             font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .stats {
@@ -125,33 +141,17 @@
             color: var(--text-tertiary);
         }
 
-        /* 上传区域 */
-        .upload-box {
-            margin-bottom: 24px;
-            padding: 32px;
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            border: 2px dashed var(--border-color);
-            text-align: center;
-            transition: all var(--transition-fast);
-        }
-
-        .upload-box:hover {
-            border-color: var(--primary-color);
-            background: var(--primary-light);
-        }
-
         .upload-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 28px;
+            padding: 10px 20px;
             background: linear-gradient(135deg, var(--primary-color), #0c7abf);
             color: #fff;
             border: none;
             border-radius: var(--radius-full);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             transition: all var(--transition-fast);
             box-shadow: 0 2px 8px rgba(29, 155, 240, 0.3);
@@ -166,10 +166,40 @@
             transform: translateY(0);
         }
 
-        .upload-hint {
-            margin-left: 16px;
-            color: var(--text-tertiary);
-            font-size: 14px;
+        /* 拖放状态样式 */
+        .upload-btn.drag-over {
+            background: linear-gradient(135deg, #00be4f, #00a046);
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 190, 79, 0.4);
+        }
+
+        .drop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(29, 155, 240, 0.1);
+            border: 3px dashed var(--primary-color);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .drop-overlay.active {
+            display: flex;
+        }
+
+        .drop-overlay-text {
+            background: var(--card-bg);
+            padding: 32px 48px;
+            border-radius: var(--radius-lg);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-color);
+            box-shadow: var(--shadow-lg);
         }
 
         /* 表格容器 */
@@ -348,7 +378,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: var(--bg-color);
             color: var(--text-secondary);
             border-radius: var(--radius-full);
@@ -356,6 +386,7 @@
             font-size: 13px;
             font-weight: 500;
             transition: all var(--transition-fast);
+            white-space: nowrap;
         }
 
         .actions a:hover {
@@ -476,10 +507,45 @@
         }
 
         .pagination .page-info {
-            padding: 0 20px;
+            margin-left: 16px;
+            padding: 0 16px;
             color: var(--text-secondary);
             font-size: 14px;
             font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .pagination .page-numbers {
+            display: flex;
+            gap: 6px;
+        }
+
+        .pagination .page-num {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition-fast);
+        }
+
+        .pagination .page-num:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .pagination .page-num.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
         }
 
         .pagination .page-size {
@@ -547,25 +613,26 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Twitter 书签</h1>
-            <div class="stats" id="stats">
-                <span>等待导入数据...</span>
+            <div class="header-main">
+                <h1>Twitter 书签</h1>
+                <div class="stats" id="stats">
+                    <span>等待导入数据...</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    导入数据
+                </button>
             </div>
         </div>
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
-        </div>
-        <div class="upload-box" style="margin-bottom:20px;padding:20px;background:#fff;border-radius:16px;text-align:center;">
-            <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                选择文件导入
-            </button>
-            <span class="upload-hint">支持 .json 或 .jsonl 格式</span>
         </div>
         <div class="table-wrapper">
         <table>
@@ -577,7 +644,7 @@
                     <th style="width:100px">媒体</th>
                     <th style="width:120px">时间</th>
                     <th style="width:100px">互动</th>
-                    <th style="width:90px">操作</th>
+                    <th style="width:100px">操作</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -590,13 +657,14 @@
                 </svg>
                 上一页
             </button>
-            <span class="page-info" id="pageInfo"></span>
+            <div class="page-numbers" id="pageNumbers"></div>
             <button id="nextBtn" onclick="nextPage()">
                 下一页
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="9 18 15 12 9 6"/>
                 </svg>
             </button>
+            <span class="page-info" id="pageInfo"></span>
             <select class="page-size" id="pageSize" onchange="changePageSize()">
                 <option value="20">20 条/页</option>
                 <option value="50">50 条/页</option>
@@ -605,18 +673,20 @@
         </div>
     </div>
 
+    <!-- 拖放覆盖层 -->
+    <div class="drop-overlay" id="dropOverlay">
+        <div class="drop-overlay-text">📂 释放鼠标导入数据</div>
+    </div>
+
     <script>
         let tweets = [];
         let filteredTweets = [];
         let currentPage = 1;
         let pageSize = 20;
         let db = null;
-        let bm25Index = null;
         const DB_NAME = 'TwitterBookmarkDB';
         const DB_VERSION = 1;
         const STORE_NAME = 'tweets';
-        const BM25_K1 = 1.5;
-        const BM25_B = 0.75;
 
         // 打开 IndexedDB
         function openDB() {
@@ -697,70 +767,6 @@
             });
         }
 
-        // 简单分词函数（中文按字，英文按词）
-        function tokenize(text) {
-            return text.toLowerCase()
-                .replace(/[^\w\u4e00-\u9fff]/g, ' ')
-                .split(/\s+/)
-                .filter(word => word.length > 1);
-        }
-
-        // 构建 BM25 索引
-        function buildBm25Index(docs) {
-            const docLengths = docs.map(doc => {
-                const text = (doc.full_text || '') + ' ' + (doc.username || '') + ' ' + (doc.screen_name || '');
-                return tokenize(text).length;
-            });
-
-            const avgDocLength = docLengths.reduce((a, b) => a + b, 0) / docs.length;
-
-            // 构建词到文档 ID 的映射
-            const termDocMap = new Map();
-            docs.forEach((doc, docId) => {
-                const text = (doc.full_text || '') + ' ' + (doc.username || '') + ' ' + (doc.screen_name || '');
-                const terms = [...new Set(tokenize(text))];
-                terms.forEach(term => {
-                    if (!termDocMap.has(term)) {
-                        termDocMap.set(term, new Set());
-                    }
-                    termDocMap.get(term).add(docId);
-                });
-            });
-
-            return { docs, docLengths, avgDocLength, termDocMap, N: docs.length };
-        }
-
-        // BM25 搜索
-        function bm25Search(query, index) {
-            const terms = tokenize(query);
-            if (terms.length === 0) return [];
-
-            const scores = new Map();
-
-            terms.forEach(term => {
-                const docSet = index.termDocMap.get(term);
-                if (!docSet) return;
-
-                const n = docSet.size;
-                const idf = Math.log((index.N - n + 0.5) / (n + 0.5) + 1);
-
-                docSet.forEach(docId => {
-                    const text = (index.docs[docId].full_text || '') + ' ' + (index.docs[docId].username || '');
-                    const tf = tokenize(text).filter(t => t === term).length;
-
-                    const numerator = tf * (BM25_K1 + 1);
-                    const denominator = tf + BM25_K1 * (1 - BM25_B + BM25_B * (index.docLengths[docId] / index.avgDocLength));
-                    const score = idf * (numerator / denominator);
-
-                    scores.set(docId, (scores.get(docId) || 0) + score);
-                });
-            });
-
-            return Array.from(scores.entries())
-                .sort((a, b) => b[1] - a[1])
-                .map(([docId]) => index.docs[docId]);
-        }
-
         // 跳转到指定页
         function goToPage(page) {
             const totalPages = Math.ceil(filteredTweets.length / pageSize);
@@ -793,6 +799,7 @@
             const pagination = document.getElementById('pagination');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
+            const pageNumbers = document.getElementById('pageNumbers');
             const pageInfo = document.getElementById('pageInfo');
 
             if (filteredTweets.length === 0) {
@@ -806,6 +813,41 @@
             const end = Math.min(currentPage * pageSize, filteredTweets.length);
 
             pageInfo.textContent = `显示 ${start}-${end} 条，共 ${filteredTweets.length} 条`;
+
+            // 渲染页码：当前页, 当前页+1, ..., 最大页-1, 最大页
+            let pagesHtml = '';
+            const maxVisiblePages = 5;
+
+            if (totalPages <= maxVisiblePages) {
+                for (let i = 1; i <= totalPages; i++) {
+                    const activeClass = i === currentPage ? 'active' : '';
+                    pagesHtml += `<button class="page-num ${activeClass}" onclick="goToPage(${i})">${i}</button>`;
+                }
+            } else {
+                // 始终显示当前页（高亮）
+                pagesHtml += `<button class="page-num active" onclick="goToPage(${currentPage})">${currentPage}</button>`;
+
+                // 当前页+1 (不超过最大页)
+                if (currentPage + 1 < totalPages) {
+                    pagesHtml += `<button class="page-num" onclick="goToPage(${currentPage + 1})">${currentPage + 1}</button>`;
+                }
+
+                // 省略号 (当前页+1 与 最大页-1 之间有间隔)
+                if (currentPage + 1 < totalPages - 2) {
+                    pagesHtml += `<span class="page-num" style="border:none;cursor:default;">...</span>`;
+                }
+
+                // 最大页-1
+                if (currentPage < totalPages - 1) {
+                    pagesHtml += `<button class="page-num" onclick="goToPage(${totalPages - 1})">${totalPages - 1}</button>`;
+                }
+
+                // 始终显示最大页
+                pagesHtml += `<button class="page-num" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            pageNumbers.innerHTML = pagesHtml;
+
             prevBtn.disabled = currentPage === 1;
             nextBtn.disabled = currentPage === totalPages;
         }
@@ -945,8 +987,6 @@
             searchTimeout = setTimeout(() => {
                 if (!query) {
                     filteredTweets = [...tweets];
-                } else if (bm25Index) {
-                    filteredTweets = bm25Search(query, bm25Index);
                 } else {
                     const lowerQuery = query.toLowerCase();
                     filteredTweets = tweets.filter(tweet => {
@@ -963,48 +1003,6 @@
             }, 150);
         });
 
-        // 文件导入功能
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    const text = event.target.result;
-                    const lines = text.trim().split('\n');
-
-                    tweets = lines.map(line => {
-                        try {
-                            return JSON.parse(line);
-                        } catch {
-                            return null;
-                        }
-                    }).filter(Boolean);
-
-                    if (tweets.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📄</div><p>文件中没有有效的推文数据</p></td></tr>';
-                        return;
-                    }
-
-                    filteredTweets = [...tweets].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-                    currentPage = 1; // 重置到第一页
-                    renderStats();
-                    renderTable();
-                    renderPagination();
-                } catch (error) {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">⚠️</div><p>解析失败: ' + error.message + '</p></td></tr>';
-                }
-            };
-            reader.onerror = function() {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">❌</div><p>读取文件失败</p></td></tr>';
-            };
-            reader.readAsText(file);
-        });
-
         // 页面加载时尝试读取缓存
         async function initFromCache() {
             try {
@@ -1012,7 +1010,6 @@
                 if (cachedTweets && cachedTweets.length > 0) {
                     tweets = cachedTweets.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
                     filteredTweets = [...tweets];
-                    bm25Index = buildBm25Index(filteredTweets);
                     currentPage = 1;
                     renderStats();
                     renderTable();
@@ -1041,7 +1038,6 @@
                 await clearCache();
                 tweets = [];
                 filteredTweets = [];
-                bm25Index = null;
                 currentPage = 1;
                 document.getElementById('stats').innerHTML = '<span>等待导入数据...</span>';
                 document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🗑️</div><p>缓存已清空，请重新导入</p></td></tr>';
@@ -1051,11 +1047,97 @@
             }
         }
 
-        // 文件导入功能
+        // 文件导入功能（点击按钮）
         document.getElementById('fileInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
-            if (!file) return;
+            if (file) {
+                handleFile(file);
+            }
+        });
 
+        // 初始化
+        initFromCache();
+
+        // ========== 拖放功能 ==========
+        const dropOverlay = document.getElementById('dropOverlay');
+        const uploadBtn = document.querySelector('.upload-btn');
+        let dragCount = 0;
+
+        // 阻止默认拖放行为，并管理覆盖层显示
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropOverlay.classList.add('active');
+        });
+
+        document.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCount++;
+            dropOverlay.classList.add('active');
+        });
+
+        document.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dragCount--;
+            // 只有当完全离开文档时才隐藏
+            if (dragCount <= 0) {
+                dropOverlay.classList.remove('active');
+                dragCount = 0;
+            }
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // 强制隐藏覆盖层
+            dropOverlay.style.display = 'none';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+
+            // 延迟恢复覆盖层显示（用于下次拖放）
+            setTimeout(() => {
+                dropOverlay.style.display = 'flex';
+            }, 100);
+        });
+
+        // 按钮上的拖放样式
+        uploadBtn.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadBtn.classList.add('drag-over');
+        });
+
+        uploadBtn.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadBtn.classList.add('drag-over');
+        });
+
+        uploadBtn.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadBtn.classList.remove('drag-over');
+        });
+
+        uploadBtn.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            uploadBtn.classList.remove('drag-over');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        // 处理文件
+        function handleFile(file) {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
 
@@ -1082,7 +1164,6 @@
                     await saveTweets(tweets);
 
                     filteredTweets = [...tweets].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
-                    bm25Index = buildBm25Index(filteredTweets);
                     currentPage = 1;
                     renderStats();
                     renderTable();
@@ -1096,10 +1177,7 @@
                 tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">❌</div><p>读取文件失败</p></td></tr>';
             };
             reader.readAsText(file);
-        });
-
-        // 初始化
-        initFromCache();
+        }
     </script>
 </body>
 </html>
