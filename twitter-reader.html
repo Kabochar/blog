@@ -5,103 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Twitter 书签查看器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
+        /* ===== 设计系统 - X.com 风格 ===== */
         :root {
-            /* 主色调 - Twitter 蓝 */
-            --primary-color: #1d9bf0;
-            --primary-hover: #1a8cd8;
-            --primary-light: #e8f5fe;
+            /* X.com 配色 */
+            --color-bg: #f7f9f9;
+            --color-surface: #ffffff;
+            --color-border: #eff3f4;
+            --color-border-light: #f7f9f9;
 
-            /* 语义色 */
-            --success-color: #00be4f;
-            --success-bg: #e8f9ed;
-            --warning-color: #ffad1f;
-            --warning-bg: #fff8e8;
-            --danger-color: #f4212e;
-            --danger-bg: #ffe9e9;
+            --color-text-primary: #0f1419;
+            --color-text-secondary: #536471;
+            --color-text-tertiary: #8b98a5;
+            --color-text-link: #1d9bf0;
 
-            /* 中性色 */
-            --bg-color: #f7f9fa;
-            --card-bg: #ffffff;
-            --text-primary: #0f1419;
-            --text-secondary: #536471;
-            --text-tertiary: #8b98a5;
-            --border-color: #eff3f4;
-            --divider-color: #eff3f4;
+            --color-hover: #f7f9f9;
+            --color-hover-dark: #e7e9ea;
 
-            /* 阴影 */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --color-success: #00be4f;
+            --color-success-bg: #e8f9ed;
+            --color-warning: #ffad1f;
+            --color-warning-bg: #fff8e8;
+            --color-danger: #f4212e;
+            --color-danger-bg: #ffe9e9;
 
-            /* 圆角 */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 16px;
+            /* 圆角 - X 使用更大的圆角 */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
             --radius-full: 9999px;
 
             /* 过渡 */
-            --transition-fast: 150ms ease;
-            --transition-normal: 250ms ease;
+            --transition-fast: 100ms ease;
+            --transition-normal: 200ms ease;
         }
 
-        * {
+        /* ===== 基础重置 ===== */
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.5;
-            padding: 24px;
+        html {
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
         }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text-primary);
+            line-height: 1.4;
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+
+        /* ===== 布局容器 ===== */
         .container {
-            max-width: 1400px;
+            max-width: 1260px;
             margin: 0 auto;
         }
 
-        /* 头部卡片 */
+        /* ===== 头部区域 - X 风格简洁头部 ===== */
         .header {
-            background: var(--card-bg);
-            padding: 20px 28px;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
             gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
         }
 
         .header-main {
             flex: 1;
-            min-width: 200px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
         }
 
         .header h1 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
+            color: var(--color-text-primary);
+            margin-bottom: 6px;
         }
 
         .stats {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
         }
 
         .stats-item {
@@ -111,104 +106,78 @@
         }
 
         .stats-num {
-            font-weight: 700;
-            color: var(--text-primary);
-            font-size: 15px;
+            font-weight: 600;
+            color: var(--color-text-primary);
         }
 
-        /* 搜索框 */
-        .search-box {
-            margin-bottom: 20px;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
-        .search-box input {
-            width: 100%;
-            padding: 14px 20px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-full);
-            font-size: 15px;
-            outline: none;
-            background: var(--card-bg);
-            transition: all var(--transition-fast);
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
-        }
-
-        .search-box input::placeholder {
-            color: var(--text-tertiary);
-        }
-
+        /* ===== 导入按钮 - X 风格实心黑按钮 ===== */
         .upload-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 10px 20px;
-            background: linear-gradient(135deg, var(--primary-color), #0c7abf);
-            color: #fff;
+            background: var(--color-text-primary);
+            color: var(--color-surface);
             border: none;
             border-radius: var(--radius-full);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
             transition: all var(--transition-fast);
-            box-shadow: 0 2px 8px rgba(29, 155, 240, 0.3);
         }
 
         .upload-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(29, 155, 240, 0.4);
+            background: #333;
         }
 
-        .upload-btn:active {
-            transform: translateY(0);
+        .upload-btn svg {
+            width: 18px;
+            height: 18px;
         }
 
-        /* 拖放状态样式 */
+        /* 拖放状态 */
         .upload-btn.drag-over {
-            background: linear-gradient(135deg, #00be4f, #00a046);
-            transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 190, 79, 0.4);
+            background: var(--color-text-link);
         }
 
-        .drop-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(29, 155, 240, 0.1);
-            border: 3px dashed var(--primary-color);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            pointer-events: none;
+        /* ===== 搜索框 - X pill 形状 ===== */
+        .search-box {
+            margin-bottom: 16px;
         }
 
-        .drop-overlay.active {
-            display: flex;
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+            font-size: 15px;
+            color: var(--color-text-primary);
+            background: var(--color-surface);
+            outline: none;
+            transition: all var(--transition-fast);
         }
 
-        .drop-overlay-text {
-            background: var(--card-bg);
-            padding: 32px 48px;
-            border-radius: var(--radius-lg);
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--primary-color);
-            box-shadow: var(--shadow-lg);
+        .search-box input::placeholder {
+            color: var(--color-text-tertiary);
         }
 
-        /* 表格容器 */
+        .search-box input:focus {
+            border-color: var(--color-text-link);
+            background: var(--color-surface);
+        }
+
+        /* ===== 表格容器 - X 风格简洁表格 ===== */
         .table-wrapper {
-            background: var(--card-bg);
+            background: var(--color-surface);
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
             overflow: hidden;
-            border: 1px solid var(--border-color);
         }
 
         table {
@@ -216,51 +185,55 @@
             border-collapse: collapse;
         }
 
+        thead {
+            background: var(--color-surface);
+        }
+
         th {
-            background: var(--bg-color);
-            font-weight: 600;
-            color: var(--text-secondary);
             font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 16px 20px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            padding: 12px 16px;
             text-align: left;
-            border-bottom: 1px solid var(--divider-color);
+            border-bottom: 1px solid var(--color-border);
         }
 
         td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--divider-color);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--color-border);
             vertical-align: middle;
+            background: var(--color-surface);
         }
 
         tbody tr {
             transition: background var(--transition-fast);
         }
 
-        tbody tr:hover {
-            background: var(--primary-light);
+        tbody tr.clickable {
+            cursor: pointer;
+        }
+
+        tbody tr.clickable:hover td {
+            background: var(--color-hover) !important;
         }
 
         tbody tr:last-child td {
             border-bottom: none;
         }
 
-        /* 头像 */
+        /* ===== 头像 - X 圆角方形 ===== */
         .avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-full);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
             object-fit: cover;
-            border: 2px solid var(--bg-color);
-            box-shadow: var(--shadow-sm);
         }
 
-        /* 用户信息 */
+        /* ===== 用户信息 ===== */
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .user-names {
@@ -269,92 +242,86 @@
 
         .user-names strong {
             font-weight: 600;
-            color: var(--text-primary);
+            color: var(--color-text-primary);
             font-size: 14px;
         }
 
         .username {
-            color: var(--text-tertiary);
             font-size: 13px;
+            color: var(--color-text-secondary);
         }
 
-        /* 内容列 */
+        /* ===== 内容列 ===== */
         .content {
-            max-width: 420px;
-            line-height: 1.6;
-            color: var(--text-primary);
+            max-width: 360px;
             font-size: 14px;
+            line-height: 1.5;
+            color: var(--color-text-primary);
         }
 
         .content a {
-            color: var(--primary-color);
+            color: var(--color-text-link);
             text-decoration: none;
-            word-break: break-word;
-            transition: opacity var(--transition-fast);
         }
 
         .content a:hover {
-            opacity: 0.8;
             text-decoration: underline;
         }
 
         .content img {
+            display: block;
             max-width: 100px;
-            max-height: 70px;
+            max-height: 60px;
             border-radius: var(--radius-sm);
             margin-top: 8px;
             cursor: pointer;
-            transition: transform var(--transition-fast);
         }
 
-        .content img:hover {
-            transform: scale(1.05);
-        }
-
-        /* 媒体标签 */
+        /* ===== 媒体标签 ===== */
         .media-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 28px;
-            padding: 4px 10px;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 8px;
             border-radius: var(--radius-full);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             margin-right: 6px;
         }
 
         .media-image {
-            background: var(--success-bg);
-            color: var(--success-color);
+            background: var(--color-success-bg);
+            color: var(--color-success);
         }
 
         .media-video {
-            background: var(--warning-bg);
+            background: var(--color-warning-bg);
             color: #d48806;
         }
 
         .media-gif {
-            background: #f9e8ff;
-            color: #ab47bc;
+            background: #f3e8ff;
+            color: #8b5cf6;
         }
 
         .media-link {
-            background: var(--primary-light);
-            color: var(--primary-color);
+            background: rgba(29, 155, 240, 0.1);
+            color: var(--color-text-link);
         }
 
-        /* 时间 */
+        /* ===== 时间 ===== */
         .time {
-            color: var(--text-tertiary);
             font-size: 13px;
+            color: var(--color-text-secondary);
             white-space: nowrap;
         }
 
-        /* 互动数据 */
+        /* ===== 互动数据 ===== */
         .engagement {
             display: flex;
-            gap: 16px;
+            gap: 14px;
         }
 
         .engagement-item {
@@ -362,7 +329,12 @@
             align-items: center;
             gap: 4px;
             font-size: 13px;
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
+        }
+
+        .engagement-item svg {
+            width: 16px;
+            height: 16px;
         }
 
         .engagement-item.likes {
@@ -370,135 +342,133 @@
         }
 
         .engagement-item.retweets {
-            color: #00be4f;
+            color: var(--color-success);
         }
 
-        /* 操作按钮 */
+        /* ===== 操作按钮 ===== */
         .actions a {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 6px 12px;
-            background: var(--bg-color);
-            color: var(--text-secondary);
+            background: var(--color-text-primary);
+            color: var(--color-surface);
+            border: none;
             border-radius: var(--radius-full);
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
-            transition: all var(--transition-fast);
             white-space: nowrap;
+            transition: all var(--transition-fast);
         }
 
         .actions a:hover {
-            background: var(--primary-color);
-            color: #fff;
-            transform: translateY(-1px);
+            background: #333;
         }
 
-        /* 状态标签 */
+        /* ===== 状态标签 ===== */
         .cache-status {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 14px;
-            background: var(--success-bg);
-            color: var(--success-color);
+            padding: 6px 12px;
+            background: var(--color-success-bg);
+            color: var(--color-success);
             border-radius: var(--radius-full);
             font-size: 13px;
             font-weight: 500;
         }
 
         .cache-status.error {
-            background: var(--danger-bg);
-            color: var(--danger-color);
+            background: var(--color-danger-bg);
+            color: var(--color-danger);
         }
 
-        /* 清空缓存按钮 */
+        /* ===== 清空缓存按钮 ===== */
         .clear-cache {
-            padding: 6px 14px;
-            background: var(--danger-bg);
-            color: var(--danger-color);
-            border: none;
+            padding: 6px 12px;
+            background: transparent;
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
             border-radius: var(--radius-full);
             cursor: pointer;
             font-size: 13px;
             font-weight: 500;
             transition: all var(--transition-fast);
-            margin-left: 10px;
         }
 
         .clear-cache:hover {
-            background: var(--danger-color);
-            color: #fff;
+            background: var(--color-danger-bg);
+            color: var(--color-danger);
+            border-color: var(--color-danger);
         }
 
-        /* 空状态 */
+        /* ===== 空状态 ===== */
         .empty {
             text-align: center;
             padding: 60px 20px;
-            color: var(--text-tertiary);
+            color: var(--color-text-tertiary);
         }
 
         .empty-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
+            font-size: 40px;
+            margin-bottom: 12px;
             opacity: 0.5;
         }
 
-        /* 加载状态 */
+        /* ===== 加载状态 ===== */
         .loading {
             text-align: center;
             padding: 60px 20px;
-            color: var(--text-secondary);
+            color: var(--color-text-secondary);
         }
 
         .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary-color);
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--color-border);
+            border-top-color: var(--color-text-link);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto 12px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* 分页 */
+        /* ===== 分页 - X 简洁风格 ===== */
         .pagination {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 12px;
-            margin-top: 24px;
-            padding: 20px 24px;
-            background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
+            gap: 8px;
+            margin-top: 20px;
+            padding: 16px;
         }
 
         .pagination button {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 10px 20px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            background: var(--color-surface);
             border-radius: var(--radius-full);
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--color-text-primary);
             transition: all var(--transition-fast);
         }
 
+        .pagination button svg {
+            width: 16px;
+            height: 16px;
+        }
+
         .pagination button:hover:not(:disabled) {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: var(--primary-light);
+            background: var(--color-hover);
         }
 
         .pagination button:disabled {
@@ -507,96 +477,292 @@
         }
 
         .pagination .page-info {
-            margin-left: 16px;
-            padding: 0 16px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
+            margin: 0 12px;
+            padding: 0 12px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
             white-space: nowrap;
         }
 
         .pagination .page-numbers {
             display: flex;
-            gap: 6px;
+            gap: 4px;
         }
 
         .pagination .page-num {
-            min-width: 36px;
-            height: 36px;
-            display: flex;
+            min-width: 32px;
+            height: 32px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            border-radius: var(--radius-sm);
+            background: var(--color-surface);
+            border-radius: var(--radius-full);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--color-text-primary);
             transition: all var(--transition-fast);
         }
 
         .pagination .page-num:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: var(--primary-light);
+            background: var(--color-hover);
         }
 
         .pagination .page-num.active {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: #fff;
+            background: var(--color-text-primary);
+            color: var(--color-surface);
         }
 
         .pagination .page-size {
-            margin-left: 16px;
-            padding: 10px 16px;
-            border: 1px solid var(--border-color);
+            margin-left: 12px;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
             border-radius: var(--radius-full);
-            font-size: 14px;
-            background: var(--card-bg);
-            color: var(--text-primary);
+            font-size: 13px;
+            background: var(--color-surface);
+            color: var(--color-text-primary);
             outline: none;
+            cursor: pointer;
+        }
+
+        .pagination .page-size:focus {
+            border-color: var(--color-text-link);
+        }
+
+        /* ===== 拖放覆盖层 ===== */
+        .drop-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px dashed var(--color-text-link);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .drop-overlay.active {
+            display: flex;
+        }
+
+        .drop-overlay-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text-link);
+            padding: 24px 40px;
+            background: rgba(29, 155, 240, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        /* ===== Dialog 弹窗样式 ===== */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .dialog-overlay.active {
+            display: flex;
+        }
+
+        .dialog {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .dialog-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+            background: var(--color-surface);
+            z-index: 1;
+        }
+
+        .dialog-user {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dialog-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+        }
+
+        .dialog-user-info {
+            line-height: 1.4;
+        }
+
+        .dialog-user-info strong {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--color-text-primary);
+        }
+
+        .dialog-user-info .username {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .dialog-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: var(--radius-full);
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+            flex-shrink: 0;
+        }
+
+        .dialog-close:hover {
+            background: var(--color-hover);
+            color: var(--color-text-primary);
+        }
+
+        .dialog-close svg {
+            width: 20px;
+            height: 20px;
+            display: block;
+        }
+
+        .dialog-body {
+            padding: 20px;
+        }
+
+        .dialog-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--color-text-primary);
+            margin-bottom: 16px;
+            word-break: break-word;
+        }
+
+        .dialog-content a {
+            color: var(--color-text-link);
+            word-break: break-all;
+        }
+
+        .dialog-media {
+            margin-top: 12px;
+        }
+
+        .dialog-media img,
+        .dialog-media video {
+            max-width: 100%;
+            border-radius: var(--radius-md);
+            margin-top: 8px;
+        }
+
+        .dialog-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .dialog-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dialog-meta-item svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-bg);
+        }
+
+        .dialog-actions a {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: var(--color-text-primary);
+            color: var(--color-surface);
+            border: none;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
-        .pagination .page-size:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-light);
+        .dialog-actions a:hover {
+            background: #333;
         }
 
-        /* 响应式 */
+        .dialog-actions a.secondary {
+            background: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border);
+        }
+
+        .dialog-actions a.secondary:hover {
+            background: var(--color-hover);
+        }
+
+        /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
             .content {
-                max-width: 300px;
+                max-width: 280px;
             }
         }
 
         @media (max-width: 768px) {
             body {
-                padding: 16px;
+                padding: 16px 12px;
             }
 
             .header {
-                padding: 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .header h1 {
+                font-size: 18px;
             }
 
             .stats {
                 gap: 12px;
             }
 
-            .upload-box {
-                padding: 24px;
-            }
-
-            .upload-hint {
-                display: block;
-                margin: 12px 0 0;
-            }
-
             th, td {
-                padding: 12px 14px;
+                padding: 10px 12px;
             }
 
             .avatar {
@@ -606,6 +772,19 @@
 
             .content {
                 max-width: none;
+            }
+
+            .engagement {
+                gap: 10px;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+
+            .pagination .page-size {
+                margin-left: 0;
+                width: 100%;
             }
         }
     </style>
@@ -622,7 +801,7 @@
             <div class="header-actions">
                 <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="17 8 12 3 7 8"/>
                         <line x1="12" y1="3" x2="12" y2="15"/>
@@ -635,47 +814,92 @@
             <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
         </div>
         <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:50px">头像</th>
-                    <th style="width:160px">用户</th>
-                    <th>内容</th>
-                    <th style="width:100px">媒体</th>
-                    <th style="width:120px">时间</th>
-                    <th style="width:100px">互动</th>
-                    <th style="width:100px">操作</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:48px"></th>
+                        <th style="width:140px">用户</th>
+                        <th>内容</th>
+                        <th style="width:80px">媒体</th>
+                        <th style="width:90px">时间</th>
+                        <th style="width:80px">互动</th>
+                        <th style="width:60px"></th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
         </div>
         <div class="pagination" id="pagination" style="display:none;">
             <button id="prevBtn" onclick="prevPage()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"/>
                 </svg>
-                上一页
             </button>
             <div class="page-numbers" id="pageNumbers"></div>
             <button id="nextBtn" onclick="nextPage()">
-                下一页
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="9 18 15 12 9 6"/>
                 </svg>
             </button>
             <span class="page-info" id="pageInfo"></span>
             <select class="page-size" id="pageSize" onchange="changePageSize()">
-                <option value="20">20 条/页</option>
-                <option value="50">50 条/页</option>
-                <option value="100">100 条/页</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
             </select>
         </div>
     </div>
 
     <!-- 拖放覆盖层 -->
     <div class="drop-overlay" id="dropOverlay">
-        <div class="drop-overlay-text">📂 释放鼠标导入数据</div>
+        <div class="drop-overlay-text">拖放文件到此处导入</div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog" id="dialog">
+            <div class="dialog-header">
+                <div class="dialog-user">
+                    <img class="dialog-avatar" id="dialogAvatar" src="" alt="头像">
+                    <div class="dialog-user-info">
+                        <strong id="dialogUsername"></strong>
+                        <div class="username" id="dialogScreenName"></div>
+                    </div>
+                </div>
+                <button class="dialog-close" onclick="closeDialog()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="dialog-body">
+                <div class="dialog-content" id="dialogContent"></div>
+                <div class="dialog-media" id="dialogMedia"></div>
+                <div class="dialog-meta">
+                    <span class="dialog-meta-item" id="dialogTime">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </span>
+                    <span class="dialog-meta-item" id="dialogLikes">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </span>
+                    <span class="dialog-meta-item" id="dialogRetweets">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7h-2z"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+            <div class="dialog-actions">
+                <a id="dialogViewOriginal" href="#" target="_blank">查看原帖</a>
+                <a id="dialogCopyLink" class="secondary" onclick="copyTweetLink()">复制链接</a>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -881,6 +1105,18 @@
             return date.toLocaleDateString('zh-CN');
         }
 
+        // 完整格式化时间
+        function formatFullTime(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
         // 截断文本，超长时显示省略号
         function truncateText(text, maxLength = 120) {
             if (text.length <= maxLength) return text;
@@ -908,8 +1144,45 @@
             if (tweet.media_items && tweet.media_items.length > 0) {
                 const firstMedia = tweet.media_items[0];
                 if (firstMedia.media_url_https) {
-                    html += `<br><img src="${firstMedia.media_url_https}" alt="预览图" onclick="window.open('${firstMedia.expanded_url}', '_blank')">`;
+                    html += `<br><img src="${firstMedia.media_url_https}" alt="预览图" onclick="event.stopPropagation(); window.open('${firstMedia.expanded_url}', '_blank')">`;
                 }
+            }
+
+            return html;
+        }
+
+        // 完整格式化推文内容（dialog 使用）
+        function formatFullContent(text, tweet) {
+            let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // 支持换行显示
+            html = html.replace(/\n/g, '<br>');
+
+            // 替换 URL 为可点击链接
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            html = html.replace(urlRegex, url => {
+                let displayUrl = url;
+                if (url.includes('t.co') || url.includes('x.com/i/communities')) {
+                    displayUrl = url;
+                } else if (url.length > 60) {
+                    displayUrl = url.substring(0, 60) + '...';
+                }
+                return `<a href="${url}" target="_blank">${displayUrl}</a>`;
+            });
+
+            // 显示所有图片
+            if (tweet.media_items && tweet.media_items.length > 0) {
+                html += '<div class="dialog-media">';
+                tweet.media_items.forEach(media => {
+                    if (media.media_url_https) {
+                        if (media.type === 'video' || media.type === 'animated_gif') {
+                            html += `<video src="${media.video_info?.variants?.[0]?.url || media.media_url_https}" controls poster="${media.media_url_https}"></video>`;
+                        } else {
+                            html += `<img src="${media.media_url_https}" alt="媒体" onclick="window.open('${media.expanded_url}', '_blank')">`;
+                        }
+                    }
+                });
+                html += '</div>';
             }
 
             return html;
@@ -925,12 +1198,75 @@
             return badges.join('');
         }
 
+        // 打开详情弹窗
+        function openDialog(tweet) {
+            document.getElementById('dialogAvatar').src = tweet.avatar_url || '';
+            document.getElementById('dialogUsername').textContent = tweet.username || '';
+            document.getElementById('dialogScreenName').textContent = '@' + (tweet.screen_name || '');
+            document.getElementById('dialogContent').innerHTML = formatFullContent(tweet.full_text || '', tweet);
+            document.getElementById('dialogTime').innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                ${formatFullTime(tweet.created_at || 0)}
+            `;
+            document.getElementById('dialogLikes').innerHTML = `
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                ${tweet.favorite_count || 0}
+            `;
+            document.getElementById('dialogRetweets').innerHTML = `
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7h-2z"/>
+                </svg>
+                ${tweet.retweet_count || 0}
+            `;
+            document.getElementById('dialogViewOriginal').href = `https://x.com/${tweet.screen_name}/status/${tweet.tweet_id}`;
+            document.getElementById('dialogOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭详情弹窗
+        function closeDialog() {
+            document.getElementById('dialogOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 复制推文链接
+        function copyTweetLink() {
+            const url = document.getElementById('dialogViewOriginal').href;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.getElementById('dialogCopyLink');
+                const originalText = btn.textContent;
+                btn.textContent = '已复制';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // 点击遮罩层关闭弹窗
+        document.getElementById('dialogOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDialog();
+            }
+        });
+
+        // ESC 键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDialog();
+            }
+        });
+
         // 渲染表格
         function renderTable() {
             const tableBody = document.getElementById('tableBody');
 
             if (filteredTweets.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📭</div><p>没有找到匹配的推文</p></td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x1F50D;</div><p>没有找到匹配的推文</p></td></tr>';
                 return;
             }
 
@@ -940,7 +1276,7 @@
             const pageData = filteredTweets.slice(start, end);
 
             tableBody.innerHTML = pageData.map(tweet => `
-                <tr>
+                <tr class="clickable" onclick='openDialog(${JSON.stringify(tweet).replace(/'/g, "&#39;")})'>
                     <td>
                         <img class="avatar" src="${tweet.avatar_url || ''}" alt="头像">
                     </td>
@@ -958,13 +1294,13 @@
                     <td>
                         <div class="engagement">
                             <span class="engagement-item likes">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                 </svg>
                                 ${tweet.favorite_count || 0}
                             </span>
                             <span class="engagement-item retweets">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M19 7v4H5.83l3.58-3.59L8 6l-6 6 6 6 1.41-1.41L5.83 13H21V7h-2z"/>
                                 </svg>
                                 ${tweet.retweet_count || 0}
@@ -972,7 +1308,7 @@
                         </div>
                     </td>
                     <td class="actions">
-                        <a href="https://x.com/${tweet.screen_name}/status/${tweet.tweet_id}" target="_blank">查看</a>
+                        <a href="https://x.com/${tweet.screen_name}/status/${tweet.tweet_id}" target="_blank" onclick="event.stopPropagation()">查看</a>
                     </td>
                 </tr>
             `).join('');
@@ -1028,8 +1364,8 @@
         function showCacheStatus(success, message) {
             const stats = document.getElementById('stats');
             stats.innerHTML = success
-                ? `<span>${message}</span><span class="cache-status">已缓存</span><button class="clear-cache" onclick="handleClearCache()">清空缓存</button>`
-                : `<span>${message}</span><span class="cache-status error">缓存异常</span>`;
+                ? `<span>${message}</span> <span class="cache-status">已缓存</span> <button class="clear-cache" onclick="handleClearCache()">清空</button>`
+                : `<span>${message}</span> <span class="cache-status error">缓存异常</span>`;
         }
 
         // 处理清空缓存
@@ -1040,7 +1376,7 @@
                 filteredTweets = [];
                 currentPage = 1;
                 document.getElementById('stats').innerHTML = '<span>等待导入数据...</span>';
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">🗑️</div><p>缓存已清空，请重新导入</p></td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x2715;</div><p>缓存已清空，请重新导入</p></td></tr>';
                 document.getElementById('pagination').style.display = 'none';
             } catch (error) {
                 alert('清空缓存失败: ' + error.message);
@@ -1156,7 +1492,7 @@
                     }).filter(Boolean);
 
                     if (tweets.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">📄</div><p>文件中没有有效的推文数据</p></td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x1F4C4;</div><p>文件中没有有效的推文数据</p></td></tr>';
                         return;
                     }
 
@@ -1170,11 +1506,11 @@
                     renderPagination();
                     showCacheStatus(true, `已加载 ${tweets.length} 条`);
                 } catch (error) {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">⚠️</div><p>解析失败: ' + error.message + '</p></td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>解析失败</p></td></tr>';
                 }
             };
             reader.onerror = function() {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">❌</div><p>读取文件失败</p></td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x2715;</div><p>读取文件失败</p></td></tr>';
             };
             reader.readAsText(file);
         }
