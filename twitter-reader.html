@@ -1344,7 +1344,16 @@
             try {
                 const cachedTweets = await loadTweets();
                 if (cachedTweets && cachedTweets.length > 0) {
-                    tweets = cachedTweets.sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    // 按 sort_index 倒序排序（Twitter 书签导出数据的时间倒序标识）
+                    const sortByTime = (a, b) => {
+                        const sortA = BigInt(a.sort_index || 0);
+                        const sortB = BigInt(b.sort_index || 0);
+                        if (sortB > sortA) return 1;
+                        if (sortB < sortA) return -1;
+                        return 0;
+                    };
+
+                    tweets = cachedTweets.sort(sortByTime);
                     filteredTweets = [...tweets];
                     currentPage = 1;
                     renderStats();
@@ -1499,7 +1508,17 @@
                     // 保存到 IndexedDB
                     await saveTweets(tweets);
 
-                    filteredTweets = [...tweets].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+                    // 按 sort_index 倒序排序（Twitter 书签导出数据的时间倒序标识）
+                    const sortByTime = (a, b) => {
+                        const sortA = BigInt(a.sort_index || 0);
+                        const sortB = BigInt(b.sort_index || 0);
+                        // 降序：大的在前（更新的在前面）
+                        if (sortB > sortA) return 1;
+                        if (sortB < sortA) return -1;
+                        return 0;
+                    };
+
+                    filteredTweets = [...tweets].sort(sortByTime);
                     currentPage = 1;
                     renderStats();
                     renderTable();
