@@ -7,6 +7,7 @@
     <title>Twitter 书签查看器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         /* ===== 设计系统 - X.com 风格 ===== */
         :root {
@@ -742,111 +743,118 @@
             }
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 16px 12px;
-            }
+        /* ===== Tab 导航 ===== */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: var(--color-surface);
+            padding: 4px;
+            border-radius: var(--radius-full);
+            width: fit-content;
+        }
 
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 16px;
-            }
+        .tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            transition: all var(--transition-fast);
+        }
 
-            .header h1 {
-                font-size: 18px;
-            }
+        .tab:hover {
+            color: var(--color-text-primary);
+            background: var(--color-hover);
+        }
 
-            .stats {
-                gap: 12px;
-            }
+        .tab.active {
+            background: var(--color-text-primary);
+            color: var(--color-surface);
+        }
 
-            th, td {
-                padding: 10px 12px;
-            }
+        .tab-content {
+            display: none;
+        }
 
-            .avatar {
-                width: 36px;
-                height: 36px;
-            }
+        .tab-content.active {
+            display: block;
+        }
 
-            .content {
-                max-width: none;
-            }
-
-            .engagement {
-                gap: 10px;
-            }
-
-            .pagination {
-                flex-wrap: wrap;
-            }
-
-            .pagination .page-size {
-                margin-left: 0;
-                width: 100%;
-            }
+        .list-container.active {
+            display: block;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="header-main">
-                <h1>Twitter 书签</h1>
-                <div class="stats" id="stats">
-                    <span>等待导入数据...</span>
+        <!-- Tab 导航 -->
+        <div class="tabs">
+            <button class="tab active" data-tab="list" onclick="switchTab('list')">书签列表</button>
+        </div>
+
+        <!-- 列表视图 -->
+        <div class="tab-content list-container active" id="listTab">
+            <div class="header">
+                <div class="header-main">
+                    <h1>Twitter 书签</h1>
+                    <div class="stats" id="stats">
+                        <span>等待导入数据...</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        导入数据
+                    </button>
                 </div>
             </div>
-            <div class="header-actions">
-                <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17 8 12 3 7 8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    导入数据
-                </button>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
             </div>
-        </div>
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
-        </div>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width:48px"></th>
-                        <th style="width:140px">用户</th>
-                        <th>内容</th>
-                        <th style="width:80px">媒体</th>
-                        <th style="width:90px">时间</th>
-                        <th style="width:80px">互动</th>
-                        <th style="width:60px"></th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-        <div class="pagination" id="pagination" style="display:none;">
-            <button id="prevBtn" onclick="prevPage()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"/>
-                </svg>
-            </button>
-            <div class="page-numbers" id="pageNumbers"></div>
-            <button id="nextBtn" onclick="nextPage()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"/>
-                </svg>
-            </button>
-            <span class="page-info" id="pageInfo"></span>
-            <select class="page-size" id="pageSize" onchange="changePageSize()">
-                <option value="20">20</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:48px"></th>
+                            <th style="width:140px">用户</th>
+                            <th>内容</th>
+                            <th style="width:80px">媒体</th>
+                            <th style="width:90px">时间</th>
+                            <th style="width:80px">互动</th>
+                            <th style="width:60px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="pagination" id="pagination" style="display:none;">
+                <button id="prevBtn" onclick="prevPage()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                </button>
+                <div class="page-numbers" id="pageNumbers"></div>
+                <button id="nextBtn" onclick="nextPage()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                </button>
+                <span class="page-info" id="pageInfo"></span>
+                <select class="page-size" id="pageSize" onchange="changePageSize()">
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -898,6 +906,7 @@
             <div class="dialog-actions">
                 <a id="dialogViewOriginal" href="#" target="_blank">查看原帖</a>
                 <a id="dialogCopyLink" class="secondary" onclick="copyTweetLink()">复制链接</a>
+                <a id="dialogExportImage" class="secondary" onclick="exportDialogImage()">导出图片</a>
             </div>
         </div>
     </div>
@@ -1091,6 +1100,18 @@
             `;
         }
 
+        // ========== Tab 切换 ==========
+        function switchTab(tabName) {
+            // 更新 tab 按钮状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+
+            // 更新内容显示
+            document.getElementById('listTab').classList.toggle('active', tabName === 'list');
+            document.getElementById('listTab').classList.toggle('list-container', tabName === 'list');
+        }
+
         // 格式化时间
         function formatTime(timestamp) {
             const date = new Date(timestamp * 1000);
@@ -1224,6 +1245,7 @@
                 ${tweet.retweet_count || 0}
             `;
             document.getElementById('dialogViewOriginal').href = `https://x.com/${tweet.screen_name}/status/${tweet.tweet_id}`;
+            document.getElementById('dialog').dataset.tweetId = tweet.tweet_id;
             document.getElementById('dialogOverlay').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -1245,6 +1267,71 @@
                     btn.textContent = originalText;
                 }, 2000);
             });
+        }
+
+        // 导出弹窗图片
+        async function exportDialogImage() {
+            const dialog = document.getElementById('dialog');
+            const btn = document.getElementById('dialogExportImage');
+            const originalText = btn.textContent;
+            btn.textContent = '生成中...';
+
+            // 临时禁用 sticky 和滚动，捕获完整内容
+            const header = dialog.querySelector('.dialog-header');
+            const actions = dialog.querySelector('.dialog-actions');
+            const body = dialog.querySelector('.dialog-body');
+
+            const originalPosition = header.style.position;
+            const originalTop = header.style.top;
+            const originalZIndex = header.style.zIndex;
+            const originalOverflowY = dialog.style.overflowY;
+            const originalMaxHeight = dialog.style.maxHeight;
+
+            // 禁用 sticky，让头部正常参与布局
+            header.style.position = 'relative';
+            header.style.top = '0';
+            header.style.zIndex = '0';
+
+            // 临时展开完整高度
+            dialog.style.overflowY = 'visible';
+            dialog.style.maxHeight = 'none';
+
+            // 强制重排
+            await new Promise(resolve => setTimeout(resolve, 50));
+            dialog.offsetHeight;
+
+            try {
+                const canvas = await html2canvas(dialog, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: true
+                });
+
+                const link = document.createElement('a');
+                const tweetId = dialog.dataset.tweetId || 'unknown';
+                const timestamp = Date.now();
+                link.download = `tweet_${tweetId}_${timestamp}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                btn.textContent = '已导出';
+            } catch (error) {
+                console.error('导出失败:', error);
+                btn.textContent = '导出失败';
+            } finally {
+                // 恢复样式
+                header.style.position = originalPosition;
+                header.style.top = originalTop;
+                header.style.zIndex = originalZIndex;
+                dialog.style.overflowY = originalOverflowY;
+                dialog.style.maxHeight = originalMaxHeight;
+            }
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
         }
 
         // 点击遮罩层关闭弹窗
@@ -1387,6 +1474,17 @@
                 document.getElementById('stats').innerHTML = '<span>等待导入数据...</span>';
                 document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x2715;</div><p>缓存已清空，请重新导入</p></td></tr>';
                 document.getElementById('pagination').style.display = 'none';
+                // 清空热力图
+                document.getElementById('heatmapTotal').textContent = '0';
+                document.getElementById('heatmapGrid').innerHTML = '';
+                document.getElementById('heatmapMonths').innerHTML = '';
+                document.getElementById('activeDaysValue').textContent = '0';
+                document.getElementById('activeDaysProgress').style.strokeDashoffset = '201.06';
+                document.getElementById('streakValue').textContent = '0';
+                document.getElementById('streakProgress').style.strokeDashoffset = '201.06';
+                document.getElementById('weekendPercent').textContent = '0%';
+                document.getElementById('peakDayCount').textContent = '0';
+                document.getElementById('peakDayDate').textContent = '-';
             } catch (error) {
                 alert('清空缓存失败: ' + error.message);
             }
@@ -1437,18 +1535,13 @@
             e.preventDefault();
             e.stopPropagation();
 
-            // 强制隐藏覆盖层
-            dropOverlay.style.display = 'none';
+            // 隐藏覆盖层
+            dropOverlay.classList.remove('active');
 
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 handleFile(files[0]);
             }
-
-            // 延迟恢复覆盖层显示（用于下次拖放）
-            setTimeout(() => {
-                dropOverlay.style.display = 'flex';
-            }, 100);
         });
 
         // 按钮上的拖放样式
@@ -1483,6 +1576,10 @@
 
         // 处理文件
         function handleFile(file) {
+            // 立即隐藏覆盖层
+            dropOverlay.classList.remove('active');
+            dragCount = 0;
+
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
 
