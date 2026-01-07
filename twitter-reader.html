@@ -153,6 +153,36 @@
             margin-bottom: 16px;
         }
 
+        .search-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-row input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+            font-size: 15px;
+            color: var(--color-text-primary);
+            background: var(--color-surface);
+            outline: none;
+            transition: all var(--transition-fast);
+        }
+
+        .search-row input::placeholder {
+            color: var(--color-text-tertiary);
+        }
+
+        .search-row input:focus {
+            border-color: var(--color-text-link);
+        }
+
+        #authorSearchInput {
+            flex: 0 0 180px;
+        }
+
         .search-box input {
             width: 100%;
             padding: 12px 16px;
@@ -602,6 +632,15 @@
         .dialog-user {
             display: flex;
             gap: 12px;
+            cursor: pointer;
+            padding: 4px;
+            margin: -4px;
+            border-radius: var(--radius-md);
+            transition: background var(--transition-fast);
+        }
+
+        .dialog-user:hover {
+            background: var(--color-hover);
         }
 
         .dialog-avatar {
@@ -817,8 +856,12 @@
                     </button>
                 </div>
             </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索推文内容、用户名...">
+            <div class="search-row">
+                <input type="text" id="searchInput" placeholder="搜索推文内容或作者...">
+                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-text-secondary);cursor:pointer;">
+                    <input type="checkbox" id="authorOnlyCheck" onchange="applyFilters()" style="width:18px;height:18px;cursor:pointer;">
+                    仅检索作者
+                </label>
             </div>
             <div class="table-wrapper">
                 <table>
@@ -867,7 +910,7 @@
     <div class="dialog-overlay" id="dialogOverlay">
         <div class="dialog" id="dialog">
             <div class="dialog-header">
-                <div class="dialog-user">
+                <div class="dialog-user" id="dialogUserArea" onclick="filterByAuthor()">
                     <img class="dialog-avatar" id="dialogAvatar" src="" alt="头像">
                     <div class="dialog-user-info">
                         <strong id="dialogUsername"></strong>
@@ -1220,7 +1263,10 @@
         }
 
         // 打开详情弹窗
+        let currentDialogScreenName = null;
+
         function openDialog(tweet) {
+            currentDialogScreenName = tweet.screen_name;
             document.getElementById('dialogAvatar').src = tweet.avatar_url || '';
             document.getElementById('dialogUsername').textContent = tweet.username || '';
             document.getElementById('dialogScreenName').textContent = '@' + (tweet.screen_name || '');
@@ -1254,6 +1300,15 @@
         function closeDialog() {
             document.getElementById('dialogOverlay').classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        // 点击作者过滤该作者的所有推文
+        function filterByAuthor() {
+            if (!currentDialogScreenName) return;
+            document.getElementById('searchInput').value = '@' + currentDialogScreenName;
+            document.getElementById('authorOnlyCheck').checked = true;
+            closeDialog();
+            applyFilters();
         }
 
         // 复制推文链接
@@ -1403,28 +1458,43 @@
 
         // 搜索功能
         let searchTimeout = null;
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const query = e.target.value.trim();
 
+        document.getElementById('searchInput').addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                if (!query) {
-                    filteredTweets = [...tweets];
-                } else {
-                    const lowerQuery = query.toLowerCase();
-                    filteredTweets = tweets.filter(tweet => {
-                        const text = (tweet.full_text || '').toLowerCase();
-                        const username = (tweet.username || '').toLowerCase();
-                        const screenName = (tweet.screen_name || '').toLowerCase();
-                        return text.includes(lowerQuery) || username.includes(lowerQuery) || screenName.includes(lowerQuery);
-                    });
-                }
-
-                currentPage = 1;
-                renderTable();
-                renderPagination();
+                applyFilters();
             }, 150);
         });
+
+        // 综合筛选函数
+        function applyFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const authorOnlyCheck = document.getElementById('authorOnlyCheck');
+            const query = searchInput.value.trim().toLowerCase();
+            // 去掉 @ 符号，因为 screen_name 不存储 @
+            const cleanQuery = query.replace('@', '');
+            const authorOnly = authorOnlyCheck.checked;
+
+            filteredTweets = tweets.filter(tweet => {
+                if (!cleanQuery) return true;
+
+                const username = (tweet.username || '').toLowerCase();
+                const screenName = (tweet.screen_name || '').toLowerCase();
+
+                if (authorOnly) {
+                    // 仅检索作者
+                    return username.includes(cleanQuery) || screenName.includes(cleanQuery);
+                } else {
+                    // 检索内容 + 作者
+                    const text = (tweet.full_text || '').toLowerCase();
+                    return text.includes(cleanQuery) || username.includes(cleanQuery) || screenName.includes(cleanQuery);
+                }
+            });
+
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        }
 
         // 页面加载时尝试读取缓存
         async function initFromCache() {
