@@ -845,15 +845,15 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    <label class="upload-btn" for="fileInput" style="cursor:pointer;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
                             <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
                         导入数据
-                    </button>
+                    </label>
+                    <input type="file" id="fileInput" accept=".json,.jsonl" style="display:none">
                 </div>
             </div>
             <div class="search-row">
@@ -1574,6 +1574,13 @@
         // ========== 拖放功能 ==========
         const dropOverlay = document.getElementById('dropOverlay');
         const uploadBtn = document.querySelector('.upload-btn');
+
+        // 触摸设备检测：禁用拖放覆盖层（触摸设备不支持 drag/drop）
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+            dropOverlay.style.display = 'none';
+        }
+
         let dragCount = 0;
 
         // 阻止默认拖放行为，并管理覆盖层显示
