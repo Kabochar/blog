@@ -143,6 +143,19 @@
             height: 18px;
         }
 
+        .visually-hidden-file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+
         /* 拖放状态 */
         .upload-btn.drag-over {
             background: var(--color-text-link);
@@ -208,11 +221,15 @@
         .table-wrapper {
             background: var(--color-surface);
             border-radius: var(--radius-lg);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
         }
 
         table {
             width: 100%;
+            min-width: 960px;
             border-collapse: collapse;
         }
 
@@ -777,6 +794,11 @@
 
         /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
+            .table-wrapper {
+                margin: 0 -16px;
+                padding: 0 16px;
+            }
+
             .content {
                 max-width: 280px;
             }
@@ -826,30 +848,6 @@
         .list-container.active {
             display: block;
         }
-
-        /* ===== 文件输入覆盖层 - 兼容移动端 ===== */
-        .file-input-hidden {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            visibility: hidden;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        /* ===== 拖放覆盖层 - 添加触摸设备样式 ===== */
-        .drop-overlay {
-            /* ... 现有样式 ... */
-            touch-action: none; /* 禁用默认触摸行为 */
-        }
-
-        .drop-overlay-touching {
-            background: rgba(29, 155, 240, 0.1);
-            border-color: var(--color-success);
-        }
     </style>
 </head>
 <body>
@@ -868,16 +866,16 @@
                         <span>等待导入数据...</span>
                     </div>
                 </div>
-                <div class="header-actions" style="position: relative;">
-                    <label for="fileInput" class="upload-btn" style="position: relative; display: inline-flex; align-items: center; gap: 8px;">
+                <div class="header-actions">
+                    <button type="button" class="upload-btn" id="openFileBtn" style="cursor:pointer;">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                             <polyline points="17 8 12 3 7 8"/>
                             <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
                         导入数据
-                    </label>
-                    <input type="file" id="fileInput" accept=".json,.jsonl" class="file-input-hidden">
+                    </button>
+                    <input type="file" id="fileInput" class="visually-hidden-file-input">
                 </div>
             </div>
             <div class="search-row">
@@ -1584,8 +1582,17 @@
             }
         }
 
+        const fileInput = document.getElementById('fileInput');
+        const openFileBtn = document.getElementById('openFileBtn');
+
+        openFileBtn.addEventListener('click', function() {
+            // Reset the current value so re-selecting the same file still fires change.
+            fileInput.value = '';
+            fileInput.click();
+        });
+
         // 文件导入功能（点击按钮）
-        document.getElementById('fileInput').addEventListener('change', async function(e) {
+        fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
                 handleFile(file);
@@ -1598,6 +1605,13 @@
         // ========== 拖放功能 ==========
         const dropOverlay = document.getElementById('dropOverlay');
         const uploadBtn = document.querySelector('.upload-btn');
+
+        // 触摸设备检测：禁用拖放覆盖层（触摸设备不支持 drag/drop）
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        if (isTouchDevice) {
+            dropOverlay.style.display = 'none';
+        }
+
         let dragCount = 0;
 
         // 阻止默认拖放行为，并管理覆盖层显示
@@ -1677,6 +1691,15 @@
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
 
+            const fileName = (file.name || '').toLowerCase();
+            const allowedExtensions = ['.json', '.jsonl', '.txt'];
+            const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+            if (!hasAllowedExtension) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>文件类型不支持：请选择 .json、.jsonl 或 .txt 文本文件</p></td></tr>';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = async function(event) {
                 try {
@@ -1716,91 +1739,13 @@
                     renderPagination();
                     showCacheStatus(true, `已加载 ${tweets.length} 条`);
                 } catch (error) {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>解析失败</p></td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>解析失败：当前仅支持 JSONL / 每行一条 JSON 记录</p></td></tr>';
                 }
             };
             reader.onerror = function() {
                 tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x2715;</div><p>读取文件失败</p></td></tr>';
             };
             reader.readAsText(file);
-        }
-
-        // ========== 触摸设备支持 ==========
-        let touchFile = null;
-        let touchOverlayTimer = null;
-        let longPressTimer = null;
-        let longPressTarget = null;
-
-        // 检测是否为触摸设备
-        function isTouchDevice() {
-            return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-        }
-
-        // 触摸开始 - 记录拖入的文件（从剪贴板粘贴）
-        document.addEventListener('touchstart', function(e) {
-            if (!isTouchDevice()) return;
-            if (e.clipboardData && e.clipboardData.files.length > 0) {
-                touchFile = e.clipboardData.files[0];
-            }
-        }, { passive: true });
-
-        // 触摸移动 - 显示覆盖层
-        document.addEventListener('touchmove', function(e) {
-            if (!isTouchDevice()) return;
-            if (touchOverlayTimer) {
-                clearTimeout(touchOverlayTimer);
-                touchOverlayTimer = null;
-            }
-            dropOverlay.classList.add('active');
-            dropOverlay.classList.add('drop-overlay-touching');
-        }, { passive: true });
-
-        // 触摸结束 - 处理文件
-        document.addEventListener('touchend', function(e) {
-            if (!isTouchDevice()) return;
-            dropOverlay.classList.remove('active');
-            dropOverlay.classList.remove('drop-overlay-touching');
-            if (touchFile) {
-                handleFile(touchFile);
-                touchFile = null;
-            }
-        }, { passive: true });
-
-        // 触摸长按触发文件选择
-        uploadBtn.addEventListener('touchstart', function(e) {
-            if (!isTouchDevice()) return;
-            longPressTimer = setTimeout(function() {
-                document.getElementById('fileInput').click();
-            }, 500);
-            longPressTarget = e.currentTarget;
-        }, { passive: true });
-
-        uploadBtn.addEventListener('touchend', function(e) {
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-            longPressTarget = null;
-        }, { passive: true });
-
-        uploadBtn.addEventListener('touchmove', function(e) {
-            if (longPressTimer && longPressTarget) {
-                const rect = longPressTarget.getBoundingClientRect();
-                const touch = e.touches[0];
-                if (touch.clientX < rect.left || touch.clientX > rect.right ||
-                    touch.clientY < rect.top || touch.clientY > rect.bottom) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
-                }
-            }
-        }, { passive: true });
-
-        // 触摸设备提示
-        if (isTouchDevice()) {
-            const dropOverlayText = document.querySelector('.drop-overlay-text');
-            if (dropOverlayText) {
-                dropOverlayText.textContent = '长按导入按钮选择文件';
-            }
         }
     </script>
 </body>
