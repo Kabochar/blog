@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -154,11 +155,6 @@
             clip-path: inset(50%);
             white-space: nowrap;
             border: 0;
-        }
-
-        /* 拖放状态 */
-        .upload-btn.drag-over {
-            background: var(--color-text-link);
         }
 
         /* ===== 搜索框 - X pill 形状 ===== */
@@ -577,34 +573,6 @@
             border-color: var(--color-text-link);
         }
 
-        /* ===== 拖放覆盖层 ===== */
-        .drop-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px dashed var(--color-text-link);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .drop-overlay.active {
-            display: flex;
-        }
-
-        .drop-overlay-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--color-text-link);
-            padding: 24px 40px;
-            background: rgba(29, 155, 240, 0.1);
-            border-radius: var(--radius-lg);
-        }
-
         /* ===== Dialog 弹窗样式 ===== */
         .dialog-overlay {
             position: fixed;
@@ -921,11 +889,6 @@
                 </select>
             </div>
         </div>
-    </div>
-
-    <!-- 拖放覆盖层 -->
-    <div class="drop-overlay" id="dropOverlay">
-        <div class="drop-overlay-text">拖放文件到此处导入</div>
     </div>
 
     <!-- 详情弹窗 -->
@@ -1602,92 +1565,8 @@
         // 初始化
         initFromCache();
 
-        // ========== 拖放功能 ==========
-        const dropOverlay = document.getElementById('dropOverlay');
-        const uploadBtn = document.querySelector('.upload-btn');
-
-        // 触摸设备检测：禁用拖放覆盖层（触摸设备不支持 drag/drop）
-        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        if (isTouchDevice) {
-            dropOverlay.style.display = 'none';
-        }
-
-        let dragCount = 0;
-
-        // 阻止默认拖放行为，并管理覆盖层显示
-        document.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dropOverlay.classList.add('active');
-        });
-
-        document.addEventListener('dragenter', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCount++;
-            dropOverlay.classList.add('active');
-        });
-
-        document.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            dragCount--;
-            // 只有当完全离开文档时才隐藏
-            if (dragCount <= 0) {
-                dropOverlay.classList.remove('active');
-                dragCount = 0;
-            }
-        });
-
-        document.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // 隐藏覆盖层
-            dropOverlay.classList.remove('active');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
-        });
-
-        // 按钮上的拖放样式
-        uploadBtn.addEventListener('dragenter', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadBtn.classList.add('drag-over');
-        });
-
-        uploadBtn.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadBtn.classList.add('drag-over');
-        });
-
-        uploadBtn.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadBtn.classList.remove('drag-over');
-        });
-
-        uploadBtn.addEventListener('drop', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            uploadBtn.classList.remove('drag-over');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFile(files[0]);
-            }
-        });
-
         // 处理文件
         function handleFile(file) {
-            // 立即隐藏覆盖层
-            dropOverlay.classList.remove('active');
-            dragCount = 0;
-
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
 
