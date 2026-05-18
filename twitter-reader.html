@@ -843,7 +843,7 @@
                         </svg>
                         导入数据
                     </button>
-                    <input type="file" id="fileInput" class="visually-hidden-file-input">
+                    <input type="file" id="fileInput" class="visually-hidden-file-input" accept=".zip,.json,.jsonl,.txt,application/zip,application/x-zip-compressed">
                 </div>
             </div>
             <div class="search-row">
@@ -1486,16 +1486,7 @@
             try {
                 const cachedTweets = await loadTweets();
                 if (cachedTweets && cachedTweets.length > 0) {
-                    // 按 sort_index 倒序排序（Twitter 书签导出数据的时间倒序标识）
-                    const sortByTime = (a, b) => {
-                        const sortA = BigInt(a.sort_index || 0);
-                        const sortB = BigInt(b.sort_index || 0);
-                        if (sortB > sortA) return 1;
-                        if (sortB < sortA) return -1;
-                        return 0;
-                    };
-
-                    tweets = cachedTweets.sort(sortByTime);
+                    tweets = sortTweetsByTime(cachedTweets);
                     filteredTweets = [...tweets];
                     currentPage = 1;
                     renderStats();
@@ -1558,73 +1549,243 @@
         fileInput.addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
-                handleFile(file);
+                await handleFile(file);
             }
         });
 
         // 初始化
         initFromCache();
 
+        function isZipFile(file) {
+            const fileName = (file.name || '').toLowerCase();
+            const fileType = (file.type || '').toLowerCase();
+            return fileName.endsWith('.zip') || fileType.includes('zip');
+        }
+
+        function hasSupportedTextExtension(file) {
+            const fileName = (file.name || '').toLowerCase();
+            const allowedExtensions = ['.json', '.jsonl', '.txt'];
+            return allowedExtensions.some(ext => fileName.endsWith(ext));
+        }
+
+        function readTextFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = event => resolve(event.target.result || '');
+                reader.onerror = () => reject(new Error('读取文件失败'));
+                reader.readAsText(file);
+            });
+        }
+
+        function renderTableMessage(className, iconHtml, message) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            const icon = document.createElement('div');
+            const text = document.createElement('p');
+
+            cell.colSpan = 7;
+            cell.className = className;
+            icon.className = 'empty-icon';
+            icon.innerHTML = iconHtml;
+            text.textContent = message;
+            cell.append(icon, text);
+            row.append(cell);
+            document.getElementById('tableBody').replaceChildren(row);
+        }
+
+        function sortTweetsByTime(data) {
+            return [...data].sort((a, b) => {
+                const sortA = BigInt(a.sort_index || 0);
+                const sortB = BigInt(b.sort_index || 0);
+                if (sortB > sortA) return 1;
+                if (sortB < sortA) return -1;
+                return 0;
+            });
+        }
+
+        function assertZipRange(view, offset, length) {
+            if (offset < 0 || length < 0 || offset + length > view.byteLength) {
+                throw new Error('ZIP 文件结构异常');
+            }
+        }
+
+        function findEndOfCentralDirectory(view) {
+            const minOffset = Math.max(0, view.byteLength - 0xffff - 22);
+            for (let offset = view.byteLength - 22; offset >= minOffset; offset--) {
+                if (view.getUint32(offset, true) === 0x06054b50) {
+                    return offset;
+                }
+            }
+            return -1;
+        }
+
+        function getZipEntryData(bytes, entry) {
+            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            assertZipRange(view, entry.localHeaderOffset, 30);
+
+            if (view.getUint32(entry.localHeaderOffset, true) !== 0x04034b50) {
+                throw new Error('ZIP 文件结构异常');
+            }
+
+            const fileNameLength = view.getUint16(entry.localHeaderOffset + 26, true);
+            const extraLength = view.getUint16(entry.localHeaderOffset + 28, true);
+            const dataOffset = entry.localHeaderOffset + 30 + fileNameLength + extraLength;
+
+            assertZipRange(view, dataOffset, entry.compressedSize);
+
+            const dataEnd = dataOffset + entry.compressedSize;
+            return bytes.slice(dataOffset, dataEnd);
+        }
+
+        function findPostsJsonlEntry(arrayBuffer) {
+            const bytes = new Uint8Array(arrayBuffer);
+            const view = new DataView(arrayBuffer);
+            const decoder = new TextDecoder('utf-8');
+            const endOffset = findEndOfCentralDirectory(view);
+
+            if (endOffset < 0) {
+                throw new Error('ZIP 文件结构异常');
+            }
+
+            const centralDirectorySize = view.getUint32(endOffset + 12, true);
+            const centralDirectoryOffset = view.getUint32(endOffset + 16, true);
+            let offset = centralDirectoryOffset;
+            const directoryEnd = centralDirectoryOffset + centralDirectorySize;
+
+            assertZipRange(view, centralDirectoryOffset, centralDirectorySize);
+
+            while (offset < directoryEnd) {
+                assertZipRange(view, offset, 46);
+
+                if (view.getUint32(offset, true) !== 0x02014b50) {
+                    throw new Error('ZIP 文件结构异常');
+                }
+
+                const method = view.getUint16(offset + 10, true);
+                const compressedSize = view.getUint32(offset + 20, true);
+                const fileNameLength = view.getUint16(offset + 28, true);
+                const extraLength = view.getUint16(offset + 30, true);
+                const commentLength = view.getUint16(offset + 32, true);
+                const localHeaderOffset = view.getUint32(offset + 42, true);
+                const fileNameStart = offset + 46;
+                const fileNameEnd = fileNameStart + fileNameLength;
+                const nextOffset = fileNameEnd + extraLength + commentLength;
+
+                assertZipRange(view, fileNameStart, fileNameLength);
+
+                if (nextOffset > directoryEnd) {
+                    throw new Error('ZIP 文件结构异常');
+                }
+
+                const fileName = decoder.decode(bytes.slice(fileNameStart, fileNameEnd)).replace(/\\/g, '/');
+                const baseName = fileName.split('/').pop().toLowerCase();
+
+                if (baseName === 'posts.jsonl') {
+                    return {
+                        method,
+                        compressedSize,
+                        localHeaderOffset,
+                    };
+                }
+
+                offset = nextOffset;
+            }
+
+            return null;
+        }
+
+        async function inflateZipEntry(data) {
+            if (typeof DecompressionStream !== 'function') {
+                throw new Error('当前浏览器不支持直接解压 ZIP，请先解压后上传 posts.jsonl');
+            }
+
+            try {
+                const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+                const arrayBuffer = await new Response(stream).arrayBuffer();
+                return new Uint8Array(arrayBuffer);
+            } catch (error) {
+                throw new Error('ZIP 解压失败，请确认压缩包未损坏');
+            }
+        }
+
+        async function readPostsJsonlFromZip(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            const decoder = new TextDecoder('utf-8');
+            const entry = findPostsJsonlEntry(arrayBuffer);
+
+            if (!entry) {
+                throw new Error('ZIP 中没有找到 posts.jsonl 文件');
+            }
+
+            const entryData = getZipEntryData(bytes, entry);
+
+            if (entry.method === 0) {
+                return decoder.decode(entryData);
+            }
+
+            if (entry.method === 8) {
+                const inflated = await inflateZipEntry(entryData);
+                return decoder.decode(inflated);
+            }
+
+            throw new Error('ZIP 中 posts.jsonl 使用了暂不支持的压缩方式');
+        }
+
+        async function readImportText(file) {
+            if (isZipFile(file)) {
+                return readPostsJsonlFromZip(file);
+            }
+
+            if (!hasSupportedTextExtension(file)) {
+                throw new Error('文件类型不支持：请选择 .zip、.json、.jsonl 或 .txt 文件');
+            }
+
+            return readTextFile(file);
+        }
+
+        function parseTweetsFromJsonl(text) {
+            return text.trim().split('\n').map(line => {
+                try {
+                    return JSON.parse(line);
+                } catch {
+                    return null;
+                }
+            }).filter(Boolean);
+        }
+
+        async function applyImportedTweets(importedTweets) {
+            tweets = sortTweetsByTime(importedTweets);
+
+            // 保存到 IndexedDB
+            await saveTweets(tweets);
+            filteredTweets = [...tweets];
+            currentPage = 1;
+            renderStats();
+            renderTable();
+            renderPagination();
+            showCacheStatus(true, `已加载 ${tweets.length} 条`);
+        }
+
         // 处理文件
-        function handleFile(file) {
+        async function handleFile(file) {
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = '<tr><td colspan="7" class="loading"><div class="loading-spinner"></div><p>解析中...</p></td></tr>';
 
-            const fileName = (file.name || '').toLowerCase();
-            const allowedExtensions = ['.json', '.jsonl', '.txt'];
-            const hasAllowedExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+            try {
+                const text = await readImportText(file);
+                const importedTweets = parseTweetsFromJsonl(text);
 
-            if (!hasAllowedExtension) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>文件类型不支持：请选择 .json、.jsonl 或 .txt 文本文件</p></td></tr>';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                try {
-                    const text = event.target.result;
-                    const lines = text.trim().split('\n');
-
-                    tweets = lines.map(line => {
-                        try {
-                            return JSON.parse(line);
-                        } catch {
-                            return null;
-                        }
-                    }).filter(Boolean);
-
-                    if (tweets.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x1F4C4;</div><p>文件中没有有效的推文数据</p></td></tr>';
-                        return;
-                    }
-
-                    // 保存到 IndexedDB
-                    await saveTweets(tweets);
-
-                    // 按 sort_index 倒序排序（Twitter 书签导出数据的时间倒序标识）
-                    const sortByTime = (a, b) => {
-                        const sortA = BigInt(a.sort_index || 0);
-                        const sortB = BigInt(b.sort_index || 0);
-                        // 降序：大的在前（更新的在前面）
-                        if (sortB > sortA) return 1;
-                        if (sortB < sortA) return -1;
-                        return 0;
-                    };
-
-                    filteredTweets = [...tweets].sort(sortByTime);
-                    currentPage = 1;
-                    renderStats();
-                    renderTable();
-                    renderPagination();
-                    showCacheStatus(true, `已加载 ${tweets.length} 条`);
-                } catch (error) {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x26A0;</div><p>解析失败：当前仅支持 JSONL / 每行一条 JSON 记录</p></td></tr>';
+                if (importedTweets.length === 0) {
+                    renderTableMessage('empty', '&#x1F4C4;', '文件中没有有效的推文数据');
+                    return;
                 }
-            };
-            reader.onerror = function() {
-                tableBody.innerHTML = '<tr><td colspan="7" class="empty"><div class="empty-icon">&#x2715;</div><p>读取文件失败</p></td></tr>';
-            };
-            reader.readAsText(file);
+
+                await applyImportedTweets(importedTweets);
+            } catch (error) {
+                const message = error.message || '解析失败：当前仅支持 ZIP 内 posts.jsonl 或 JSONL / 每行一条 JSON 记录';
+                renderTableMessage('empty', '&#x26A0;', message);
+            }
         }
     </script>
 </body>
