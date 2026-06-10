@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Web Teleprompter</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-top: #0e1718;
+        --bg-bottom: #050708;
+        --panel: rgba(10, 17, 18, 0.82);
+        --panel-strong: rgba(6, 12, 13, 0.92);
+        --line: rgba(171, 205, 191, 0.18);
+        --line-strong: rgba(205, 232, 224, 0.28);
+        --ink: #f5f4ef;
+        --muted: #a1b3ad;
+        --accent: #9ad2c5;
+        --accent-strong: #d6f3eb;
+        --accent-shadow: rgba(91, 156, 144, 0.25);
+        --danger: #ffb1a7;
+        --prompt-font-size: 48px;
+        --camera-overlay-opacity: 0.46;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Avenir Next", "PingFang SC", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(72, 111, 101, 0.24), transparent 34%),
+          linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+        color: var(--ink);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      button,
+      textarea,
+      input {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .app-shell {
+        width: min(1100px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: clamp(20px, 4vw, 44px) 0 48px;
+      }
+
+      .editor-shell {
+        display: grid;
+        gap: 20px;
+      }
+
+      .hero-card,
+      .editor-card,
+      .settings-card {
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+          var(--panel);
+        backdrop-filter: blur(16px);
+        box-shadow:
+          0 24px 90px rgba(0, 0, 0, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .hero-card {
+        padding: clamp(20px, 4vw, 34px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 14px;
+        color: var(--accent-strong);
+        font-size: 14px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px rgba(154, 210, 197, 0.12);
+        content: "";
+      }
+
+      .hero-title {
+        margin: 0;
+        font-family: "Iowan Old Style", "Songti SC", serif;
+        font-size: clamp(34px, 7vw, 68px);
+        line-height: 0.96;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+
+      .hero-copy {
+        max-width: 48rem;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: clamp(15px, 2.6vw, 18px);
+        line-height: 1.7;
+      }
+
+      .hero-tip {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.9fr);
+        gap: 20px;
+      }
+
+      .editor-card,
+      .settings-card {
+        padding: 20px;
+      }
+
+      .section-title {
+        margin: 0 0 14px;
+        font-size: 18px;
+        font-weight: 650;
+      }
+
+      .script-input {
+        width: 100%;
+        min-height: min(56vh, 520px);
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        resize: vertical;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--ink);
+        line-height: 1.72;
+        font-size: 18px;
+        outline: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .script-input:focus {
+        border-color: var(--line-strong);
+        box-shadow:
+          0 0 0 3px rgba(154, 210, 197, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .meta-chip {
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.035);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .settings-stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 10px;
+      }
+
+      .field-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .field-value {
+        color: var(--accent-strong);
+        font-variant-numeric: tabular-nums;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .segmented-control {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .segment-button {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        transition:
+          background 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .segment-button:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--ink);
+      }
+
+      .segment-button:focus-visible {
+        outline: none;
+        border-color: rgba(154, 210, 197, 0.52);
+        box-shadow: 0 0 0 3px rgba(154, 210, 197, 0.14);
+      }
+
+      .segment-button.is-active {
+        background: linear-gradient(135deg, rgba(223, 247, 239, 0.18), rgba(154, 210, 197, 0.22));
+        border-color: rgba(154, 210, 197, 0.34);
+        color: var(--accent-strong);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .toggle-copy {
+        display: grid;
+        gap: 4px;
+      }
+
+      .toggle-copy strong {
+        font-size: 15px;
+        font-weight: 650;
+      }
+
+      .toggle-copy span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-flex;
+        width: 54px;
+        height: 32px;
+      }
+
+      .switch input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+
+      .switch-track {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        transition: background 180ms ease;
+      }
+
+      .switch-thumb {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #f7f6f1;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        transition: transform 180ms ease;
+      }
+
+      .switch input:checked + .switch-track {
+        background: rgba(154, 210, 197, 0.46);
+      }
+
+      .switch input:checked + .switch-track + .switch-thumb {
+        transform: translateX(22px);
+      }
+
+      .primary-action,
+      .secondary-action,
+      .ghost-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px;
+        padding: 0 22px;
+        font-weight: 650;
+        transition:
+          transform 140ms ease,
+          background 140ms ease,
+          opacity 140ms ease;
+      }
+
+      .primary-action:hover,
+      .secondary-action:hover,
+      .ghost-action:hover {
+        transform: translateY(-1px);
+      }
+
+      .primary-action {
+        background: linear-gradient(135deg, #dff7ef, #9ad2c5);
+        color: #102221;
+        box-shadow: 0 16px 34px var(--accent-shadow);
+      }
+
+      .secondary-action {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--ink);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .ghost-action {
+        background: rgba(0, 0, 0, 0.36);
+        color: var(--ink);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .action-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .status-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .prompter-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .camera-stage {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: clamp(16px, 3vw, 36px);
+      }
+
+      .camera-frame {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        background: linear-gradient(180deg, #0d1415, #050708);
+      }
+
+      .camera-frame--wide,
+      .camera-frame--classic {
+        position: relative;
+        inset: auto;
+        width: min(calc((100vh - 88px) * var(--camera-frame-ratio)), calc(100vw - 48px));
+        max-width: 100%;
+        max-height: calc(100vh - 88px);
+        aspect-ratio: var(--camera-frame-aspect);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 32px;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+      }
+
+      .camera-frame--wide {
+        --camera-frame-aspect: 16 / 9;
+        --camera-frame-ratio: calc(16 / 9);
+      }
+
+      .camera-frame--classic {
+        --camera-frame-aspect: 4 / 3;
+        --camera-frame-ratio: calc(4 / 3);
+      }
+
+      .camera-feed {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background: linear-gradient(180deg, #0d1415, #050708);
+      }
+
+      .camera-overlay {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(2, 6, 7, 0.76), rgba(2, 6, 7, 0.34) 24%, rgba(2, 6, 7, 0.3) 76%, rgba(2, 6, 7, 0.74)),
+          rgba(0, 0, 0, var(--camera-overlay-opacity));
+      }
+
+      .prompt-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .prompt-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: max(16px, env(safe-area-inset-top)) 16px 12px;
+        pointer-events: auto;
+      }
+
+      .toolbar-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .toolbar-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.38);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: var(--ink);
+        font-size: 14px;
+        backdrop-filter: blur(14px);
+      }
+
+      .toolbar-pill strong {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .prompt-viewport {
+        position: relative;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      .prompt-track {
+        width: min(86vw, 920px);
+        margin: 0 auto;
+        padding: 38vh 0 34vh;
+        transform: translateY(0);
+        will-change: transform;
+      }
+
+      .prompt-content {
+        color: #fffef8;
+        font-size: var(--prompt-font-size);
+        line-height: 1.34;
+        font-weight: 600;
+        text-align: center;
+        text-wrap: pretty;
+        text-shadow:
+          0 2px 14px rgba(0, 0, 0, 0.58),
+          0 0 30px rgba(0, 0, 0, 0.22);
+      }
+
+      .prompt-content p {
+        margin: 0 0 0.78em;
+      }
+
+      .prompt-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .prompt-screen--mirror .prompt-content {
+        transform: scaleX(-1);
+      }
+
+      .prompt-bottom {
+        display: flex;
+        justify-content: center;
+        padding: 12px 14px calc(16px + env(safe-area-inset-bottom));
+      }
+
+      .control-dock {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        width: min(94vw, 860px);
+        padding: 12px;
+        border-radius: 28px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(18px);
+      }
+
+      .camera-status {
+        position: absolute;
+        left: 50%;
+        bottom: calc(108px + env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        width: min(90vw, 680px);
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(7, 11, 12, 0.82);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--muted);
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.6;
+        backdrop-filter: blur(12px);
+      }
+
+      .camera-status--warning {
+        color: var(--danger);
+      }
+
+      @media (max-width: 900px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .script-input {
+          min-height: 44vh;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .app-shell {
+          width: min(100vw - 20px, 1100px);
+          padding-top: 12px;
+        }
+
+        .editor-card,
+        .settings-card,
+        .hero-card {
+          border-radius: 22px;
+          padding: 18px;
+        }
+
+        .hero-title {
+          font-size: clamp(30px, 11vw, 48px);
+        }
+
+        .script-input {
+          min-height: 40vh;
+          padding: 16px;
+          font-size: 17px;
+        }
+
+        .prompt-track {
+          width: min(90vw, 920px);
+          padding-top: 36vh;
+          padding-bottom: 32vh;
+        }
+
+        .prompt-content {
+          line-height: 1.3;
+        }
+
+        .prompt-toolbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .toolbar-group {
+          width: 100%;
+        }
+
+        .toolbar-group .ghost-action,
+        .toolbar-group .secondary-action {
+          flex: 1;
+        }
+
+        .control-dock > button {
+          flex: 1 1 calc(50% - 10px);
+          min-width: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="editor-shell" id="editor-shell">
+        <section class="hero-card">
+          <p class="eyebrow">Web Teleprompter</p>
+          <h1 class="hero-title">把文稿贴在镜头前，但不要打断说话节奏。</h1>
+          <p class="hero-copy">
+            这是一版纯浏览器提词器。输入文稿后即可进入全屏提词模式，支持摄像头背景、自动滚动、本地草稿保存和镜像显示。
+          </p>
+          <div class="hero-tip">
+            摄像头能力依赖浏览器权限与安全上下文。若当前环境无法打开摄像头，页面仍可作为纯文字提词器使用。
+          </div>
+        </section>
+
+        <div class="workspace">
+          <section class="editor-card">
+            <h2 class="section-title">文稿</h2>
+            <textarea
+              id="script-input"
+              class="script-input"
+              spellcheck="false"
+              placeholder="在这里输入你的口播文稿。换行会保留为段落。"
+            ></textarea>
+            <div class="meta-row" aria-label="文稿统计">
+              <span class="meta-chip" id="char-count">0 字</span>
+              <span class="meta-chip" id="paragraph-count">0 段</span>
+              <span class="meta-chip">自动保存在当前浏览器</span>
+            </div>
+          </section>
+
+          <aside class="settings-card">
+            <h2 class="section-title">提词设置</h2>
+            <div class="settings-stack">
+              <label class="field">
+                <span class="field-label">
+                  <span>字号</span>
+                  <span class="field-value" id="font-size-value">48 px</span>
+                </span>
+                <input id="font-size" type="range" min="30" max="84" step="1">
+              </label>
+
+              <label class="field">
+                <span class="field-label">
+                  <span>滚动速度</span>
+                  <span class="field-value" id="scroll-speed-value">36 px/s</span>
+                </span>
+                <input id="scroll-speed" type="range" min="12" max="120" step="1">
+              </label>
+
+              <label class="field">
+                <span class="field-label">
+                  <span>背景遮罩</span>
+                  <span class="field-value" id="overlay-opacity-value">46%</span>
+                </span>
+                <input id="overlay-opacity" type="range" min="0.15" max="0.82" step="0.01">
+              </label>
+
+              <label class="field">
+                <span class="field-label">
+                  <span>摄像头画幅</span>
+                  <span class="field-value" id="camera-frame-value">铺满屏幕</span>
+                </span>
+                <div
+                  id="camera-frame-mode"
+                  class="segmented-control"
+                  role="group"
+                  aria-label="选择摄像头画幅"
+                >
+                  <button class="segment-button" type="button" data-frame-mode="full">铺满屏幕</button>
+                  <button class="segment-button" type="button" data-frame-mode="widescreen">16:9</button>
+                  <button class="segment-button" type="button" data-frame-mode="classic">4:3</button>
+                </div>
+              </label>
+
+              <div class="toggle-row">
+                <div class="toggle-copy">
+                  <strong>镜像模式</strong>
+                  <span>需要配合反射提词板时开启。</span>
+                </div>
+                <label class="switch" aria-label="切换镜像模式">
+                  <input id="mirror-toggle" type="checkbox">
+                  <span class="switch-track"></span>
+                  <span class="switch-thumb"></span>
+                </label>
+              </div>
+
+              <div class="action-stack">
+                <button class="primary-action" id="open-prompter" type="button">进入提词模式</button>
+                <button class="secondary-action" id="reset-draft" type="button">恢复示例文稿</button>
+                <p class="status-note" id="editor-note">
+                  默认优先请求前置摄像头。首次进入提词模式时，浏览器会弹出权限请求。
+                </p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="prompter-screen hidden" id="prompter-screen" aria-label="提词器全屏界面">
+        <div class="camera-stage">
+          <div id="camera-frame" class="camera-frame camera-frame--full">
+            <video id="camera-feed" class="camera-feed" autoplay playsinline muted></video>
+            <div class="camera-overlay" id="camera-overlay"></div>
+          </div>
+        </div>
+
+        <div class="prompt-stage">
+          <header class="prompt-toolbar">
+            <div class="toolbar-group">
+              <button class="ghost-action" id="exit-prompter" type="button">退出编辑</button>
+              <button class="secondary-action" id="toggle-camera" type="button">关闭摄像头</button>
+            </div>
+            <div class="toolbar-group">
+              <div class="toolbar-pill">
+                <span>画幅</span>
+                <strong id="camera-frame-pill">铺满屏幕</strong>
+              </div>
+              <div class="toolbar-pill">
+                <span>速度</span>
+                <strong id="speed-pill">36 px/s</strong>
+              </div>
+            </div>
+          </header>
+
+          <div class="prompt-viewport" id="prompt-viewport">
+            <div class="prompt-track" id="prompt-track">
+              <div class="prompt-content" id="prompt-content"></div>
+            </div>
+          </div>
+
+          <div class="camera-status hidden" id="camera-status" role="status" aria-live="polite"></div>
+
+          <footer class="prompt-bottom">
+            <div class="control-dock">
+              <button class="primary-action" id="start-scroll" type="button">开始滚动</button>
+              <button class="secondary-action" id="reset-scroll" type="button">回到顶部</button>
+              <button class="secondary-action" id="speed-down" type="button">减速</button>
+              <button class="secondary-action" id="speed-up" type="button">加速</button>
+            </div>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const storageKey = "web-teleprompter-state";
+      const defaultText = [
+        "大家好，今天想和你聊一个很普通的问题。",
+        "",
+        "为什么我们明明准备了很多材料，真正开口时，却还是容易讲散？",
+        "",
+        "因为表达不是把信息倒出来，而是带着听的人走一段路。",
+        "",
+        "先给他一个明确的问题。",
+        "再给他一个可以抓住的判断。",
+        "最后，用一个具体场景，让这个判断落地。"
+      ].join("\n");
+
+      const defaultState = {
+        text: defaultText,
+        fontSize: 48,
+        scrollSpeed: 36,
+        overlayOpacity: 0.46,
+        cameraFrameMode: "full",
+        mirror: false,
+        cameraEnabled: true
+      };
+
+      const state = {
+        ...defaultState,
+        ...loadState(),
+        isPlaying: false,
+        scrollOffset: 0
+      };
+
+      const elements = {
+        editorShell: document.getElementById("editor-shell"),
+        prompterScreen: document.getElementById("prompter-screen"),
+        scriptInput: document.getElementById("script-input"),
+        charCount: document.getElementById("char-count"),
+        paragraphCount: document.getElementById("paragraph-count"),
+        fontSize: document.getElementById("font-size"),
+        fontSizeValue: document.getElementById("font-size-value"),
+        scrollSpeed: document.getElementById("scroll-speed"),
+        scrollSpeedValue: document.getElementById("scroll-speed-value"),
+        overlayOpacity: document.getElementById("overlay-opacity"),
+        overlayOpacityValue: document.getElementById("overlay-opacity-value"),
+        cameraFrameMode: document.getElementById("camera-frame-mode"),
+        cameraFrameValue: document.getElementById("camera-frame-value"),
+        mirrorToggle: document.getElementById("mirror-toggle"),
+        openPrompter: document.getElementById("open-prompter"),
+        resetDraft: document.getElementById("reset-draft"),
+        editorNote: document.getElementById("editor-note"),
+        cameraFrame: document.getElementById("camera-frame"),
+        promptContent: document.getElementById("prompt-content"),
+        promptViewport: document.getElementById("prompt-viewport"),
+        promptTrack: document.getElementById("prompt-track"),
+        cameraFeed: document.getElementById("camera-feed"),
+        cameraOverlay: document.getElementById("camera-overlay"),
+        cameraStatus: document.getElementById("camera-status"),
+        exitPrompter: document.getElementById("exit-prompter"),
+        toggleCamera: document.getElementById("toggle-camera"),
+        startScroll: document.getElementById("start-scroll"),
+        resetScroll: document.getElementById("reset-scroll"),
+        speedDown: document.getElementById("speed-down"),
+        speedUp: document.getElementById("speed-up"),
+        cameraFramePill: document.getElementById("camera-frame-pill"),
+        speedPill: document.getElementById("speed-pill")
+      };
+
+      const cameraFrameButtons = Array.from(
+        elements.cameraFrameMode.querySelectorAll("[data-frame-mode]")
+      );
+
+      let cameraStream = null;
+      let animationFrameId = 0;
+      let previousTimestamp = 0;
+      let scrollLimit = 0;
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(storageKey);
+          if (!raw) {
+            return {};
+          }
+          const parsed = JSON.parse(raw);
+              return {
+                text: typeof parsed.text === "string" ? parsed.text : defaultText,
+                fontSize: clampNumber(parsed.fontSize, 30, 84, defaultState.fontSize),
+                scrollSpeed: clampNumber(parsed.scrollSpeed, 12, 120, defaultState.scrollSpeed),
+                overlayOpacity: clampNumber(parsed.overlayOpacity, 0.15, 0.82, defaultState.overlayOpacity),
+                cameraFrameMode: normalizeCameraFrameMode(parsed.cameraFrameMode),
+                mirror: Boolean(parsed.mirror),
+                cameraEnabled: parsed.cameraEnabled !== false
+              };
+        } catch {
+          return {};
+        }
+      }
+
+      function saveState() {
+        const snapshot = {
+              text: state.text,
+              fontSize: state.fontSize,
+              scrollSpeed: state.scrollSpeed,
+              overlayOpacity: state.overlayOpacity,
+              cameraFrameMode: state.cameraFrameMode,
+              mirror: state.mirror,
+              cameraEnabled: state.cameraEnabled
+            };
+            localStorage.setItem(storageKey, JSON.stringify(snapshot));
+          }
+
+      function clampNumber(value, min, max, fallback) {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) {
+          return fallback;
+            }
+            return Math.min(max, Math.max(min, numericValue));
+          }
+
+          function normalizeCameraFrameMode(value) {
+            return value === "widescreen" || value === "classic" || value === "full"
+              ? value
+              : defaultState.cameraFrameMode;
+          }
+
+          function getCameraFrameLabel(mode) {
+            if (mode === "widescreen") {
+              return "16:9";
+            }
+            if (mode === "classic") {
+              return "4:3";
+            }
+            return "铺满屏幕";
+          }
+
+      function hydrateControls() {
+        elements.scriptInput.value = state.text;
+        elements.fontSize.value = String(state.fontSize);
+        elements.scrollSpeed.value = String(state.scrollSpeed);
+        elements.overlayOpacity.value = String(state.overlayOpacity);
+        elements.mirrorToggle.checked = state.mirror;
+        syncCameraFrameButtons();
+      }
+
+      function updateMeta() {
+        const normalizedText = state.text.trim();
+        const characters = normalizedText.replace(/\s+/g, "").length;
+        const paragraphs = normalizedText ? normalizedText.split(/\n+/).filter(Boolean).length : 0;
+        elements.charCount.textContent = `${characters} 字`;
+        elements.paragraphCount.textContent = `${paragraphs} 段`;
+      }
+
+      function updateSettingsLabels() {
+        elements.fontSizeValue.textContent = `${state.fontSize} px`;
+        elements.scrollSpeedValue.textContent = `${state.scrollSpeed} px/s`;
+        elements.overlayOpacityValue.textContent = `${Math.round(state.overlayOpacity * 100)}%`;
+        elements.cameraFrameValue.textContent = getCameraFrameLabel(state.cameraFrameMode);
+            elements.cameraFramePill.textContent = getCameraFrameLabel(state.cameraFrameMode);
+        elements.speedPill.textContent = `${state.scrollSpeed} px/s`;
+      }
+
+      function syncCameraFrameButtons() {
+        for (const button of cameraFrameButtons) {
+          const isActive = button.dataset.frameMode === state.cameraFrameMode;
+          button.classList.toggle("is-active", isActive);
+          button.setAttribute("aria-pressed", isActive ? "true" : "false");
+        }
+      }
+
+      function applyCameraFrameMode() {
+        elements.cameraFrame.className = "camera-frame";
+        syncCameraFrameButtons();
+        if (state.cameraFrameMode === "widescreen") {
+          elements.cameraFrame.classList.add("camera-frame--wide");
+          return;
+        }
+            if (state.cameraFrameMode === "classic") {
+              elements.cameraFrame.classList.add("camera-frame--classic");
+              return;
+            }
+            elements.cameraFrame.classList.add("camera-frame--full");
+          }
+
+          function renderPrompt() {
+            const text = state.text.trim() || defaultText;
+            const paragraphs = text.split(/\n+/).filter(Boolean);
+
+        if (paragraphs.length === 0) {
+          elements.promptContent.innerHTML = "<p>在编辑区输入文稿后再开始提词。</p>";
+        } else {
+          elements.promptContent.innerHTML = paragraphs
+            .map((paragraph) => `<p>${escapeHTML(paragraph)}</p>`)
+            .join("");
+        }
+
+            document.documentElement.style.setProperty("--prompt-font-size", `${state.fontSize}px`);
+            document.documentElement.style.setProperty("--camera-overlay-opacity", state.overlayOpacity.toFixed(2));
+            elements.prompterScreen.classList.toggle("prompt-screen--mirror", state.mirror);
+            applyCameraFrameMode();
+            updateScrollMetrics();
+          }
+
+      function escapeHTML(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function updateScrollMetrics() {
+        scrollLimit = Math.max(0, elements.promptTrack.scrollHeight - elements.promptViewport.clientHeight);
+        state.scrollOffset = Math.min(state.scrollOffset, scrollLimit);
+        applyScroll();
+      }
+
+      function applyScroll() {
+        elements.promptTrack.style.transform = `translateY(${-state.scrollOffset}px)`;
+      }
+
+      function startScroll() {
+        if (state.isPlaying) {
+          return;
+        }
+        state.isPlaying = true;
+        previousTimestamp = 0;
+        elements.startScroll.textContent = "暂停滚动";
+        animationFrameId = requestAnimationFrame(stepScroll);
+      }
+
+      function pauseScroll() {
+        state.isPlaying = false;
+        previousTimestamp = 0;
+        elements.startScroll.textContent = "开始滚动";
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = 0;
+        }
+      }
+
+      function stepScroll(timestamp) {
+        if (!state.isPlaying) {
+          return;
+        }
+
+        if (!previousTimestamp) {
+          previousTimestamp = timestamp;
+        }
+
+        const deltaSeconds = (timestamp - previousTimestamp) / 1000;
+        previousTimestamp = timestamp;
+        state.scrollOffset = Math.min(scrollLimit, state.scrollOffset + state.scrollSpeed * deltaSeconds);
+        applyScroll();
+
+        if (state.scrollOffset >= scrollLimit) {
+          pauseScroll();
+          return;
+        }
+
+        animationFrameId = requestAnimationFrame(stepScroll);
+      }
+
+      function resetScroll() {
+        state.scrollOffset = 0;
+        applyScroll();
+        pauseScroll();
+      }
+
+      async function enterPrompter() {
+        elements.editorShell.classList.add("hidden");
+        elements.prompterScreen.classList.remove("hidden");
+        renderPrompt();
+        resetScroll();
+        await syncCameraState();
+        requestFullscreenIfPossible();
+      }
+
+      async function exitPrompter() {
+        pauseScroll();
+        elements.prompterScreen.classList.add("hidden");
+        elements.editorShell.classList.remove("hidden");
+        hideCameraStatus();
+        stopCamera();
+        await exitFullscreenIfNeeded();
+      }
+
+      async function syncCameraState() {
+        if (!elements.prompterScreen.classList.contains("hidden") && state.cameraEnabled) {
+          await startCamera();
+        } else {
+          stopCamera();
+          if (!state.cameraEnabled) {
+            showCameraStatus("摄像头已关闭，当前以纯文字提词模式运行。");
+          }
+        }
+
+        elements.toggleCamera.textContent = state.cameraEnabled ? "关闭摄像头" : "开启摄像头";
+        saveState();
+      }
+
+      async function startCamera() {
+        if (cameraStream || !state.cameraEnabled) {
+          hideCameraStatus();
+          return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          state.cameraEnabled = false;
+          elements.toggleCamera.textContent = "开启摄像头";
+          showCameraStatus("当前浏览器环境不支持摄像头访问，请在 HTTPS 或 localhost 下打开。", true);
+          saveState();
+          return;
+        }
+
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: { ideal: "user" }
+            }
+          });
+          elements.cameraFeed.srcObject = cameraStream;
+          hideCameraStatus();
+        } catch (error) {
+          state.cameraEnabled = false;
+          elements.toggleCamera.textContent = "开启摄像头";
+          showCameraStatus("摄像头权限被拒绝或当前设备不可用，页面已退化为纯文字提词器。", true);
+          saveState();
+        }
+      }
+
+      function stopCamera() {
+        if (!cameraStream) {
+          elements.cameraFeed.srcObject = null;
+          return;
+        }
+        for (const track of cameraStream.getTracks()) {
+          track.stop();
+        }
+        cameraStream = null;
+        elements.cameraFeed.srcObject = null;
+      }
+
+      function showCameraStatus(message, isWarning = false) {
+        elements.cameraStatus.textContent = message;
+        elements.cameraStatus.classList.remove("hidden");
+        elements.cameraStatus.classList.toggle("camera-status--warning", isWarning);
+      }
+
+      function hideCameraStatus() {
+        elements.cameraStatus.classList.add("hidden");
+        elements.cameraStatus.classList.remove("camera-status--warning");
+      }
+
+      function requestFullscreenIfPossible() {
+        if (document.fullscreenElement || !document.documentElement.requestFullscreen) {
+          return;
+        }
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+
+      async function exitFullscreenIfNeeded() {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          try {
+            await document.exitFullscreen();
+          } catch {}
+        }
+      }
+
+      function bindEvents() {
+        elements.scriptInput.addEventListener("input", () => {
+          state.text = elements.scriptInput.value;
+          updateMeta();
+          renderPrompt();
+          resetScroll();
+          saveState();
+        });
+
+        elements.fontSize.addEventListener("input", () => {
+          state.fontSize = clampNumber(elements.fontSize.value, 30, 84, state.fontSize);
+          updateSettingsLabels();
+          renderPrompt();
+          saveState();
+        });
+
+        elements.scrollSpeed.addEventListener("input", () => {
+          state.scrollSpeed = clampNumber(elements.scrollSpeed.value, 12, 120, state.scrollSpeed);
+          updateSettingsLabels();
+          saveState();
+        });
+
+            elements.overlayOpacity.addEventListener("input", () => {
+              state.overlayOpacity = clampNumber(elements.overlayOpacity.value, 0.15, 0.82, state.overlayOpacity);
+              updateSettingsLabels();
+              renderPrompt();
+              saveState();
+            });
+
+        for (const button of cameraFrameButtons) {
+          button.addEventListener("click", () => {
+            state.cameraFrameMode = normalizeCameraFrameMode(button.dataset.frameMode);
+            updateSettingsLabels();
+            renderPrompt();
+            saveState();
+          });
+        }
+
+            elements.mirrorToggle.addEventListener("change", () => {
+              state.mirror = elements.mirrorToggle.checked;
+              renderPrompt();
+              saveState();
+        });
+
+        elements.openPrompter.addEventListener("click", () => {
+          enterPrompter();
+        });
+
+        elements.resetDraft.addEventListener("click", () => {
+          state.text = defaultText;
+              state.fontSize = defaultState.fontSize;
+              state.scrollSpeed = defaultState.scrollSpeed;
+              state.overlayOpacity = defaultState.overlayOpacity;
+              state.cameraFrameMode = defaultState.cameraFrameMode;
+              state.mirror = defaultState.mirror;
+              state.cameraEnabled = defaultState.cameraEnabled;
+              hydrateControls();
+          updateMeta();
+          updateSettingsLabels();
+          renderPrompt();
+          resetScroll();
+          hideCameraStatus();
+          saveState();
+        });
+
+        elements.exitPrompter.addEventListener("click", () => {
+          exitPrompter();
+        });
+
+        elements.toggleCamera.addEventListener("click", async () => {
+          state.cameraEnabled = !state.cameraEnabled;
+          await syncCameraState();
+        });
+
+        elements.startScroll.addEventListener("click", () => {
+          if (state.isPlaying) {
+            pauseScroll();
+          } else {
+            startScroll();
+          }
+        });
+
+        elements.resetScroll.addEventListener("click", () => {
+          resetScroll();
+        });
+
+        elements.speedDown.addEventListener("click", () => {
+          state.scrollSpeed = Math.max(12, state.scrollSpeed - 4);
+          elements.scrollSpeed.value = String(state.scrollSpeed);
+          updateSettingsLabels();
+          saveState();
+        });
+
+        elements.speedUp.addEventListener("click", () => {
+          state.scrollSpeed = Math.min(120, state.scrollSpeed + 4);
+          elements.scrollSpeed.value = String(state.scrollSpeed);
+          updateSettingsLabels();
+          saveState();
+        });
+
+        window.addEventListener("resize", () => {
+          updateScrollMetrics();
+        });
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            pauseScroll();
+          }
+        });
+
+        window.addEventListener("beforeunload", () => {
+          stopCamera();
+        });
+      }
+
+      function bootstrap() {
+        hydrateControls();
+        updateMeta();
+        updateSettingsLabels();
+        renderPrompt();
+        bindEvents();
+      }
+
+      bootstrap();
+    </script>
+  </body>
+</html>
