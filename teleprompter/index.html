@@ -19,7 +19,7 @@
         --accent-strong: #d6f3eb;
         --accent-shadow: rgba(91, 156, 144, 0.25);
         --danger: #ffb1a7;
-        --prompt-font-size: 48px;
+        --prompt-font-size: 15px;
         --camera-overlay-opacity: 0.46;
       }
 
@@ -216,6 +216,14 @@
       input[type="range"] {
         width: 100%;
         accent-color: var(--accent);
+      }
+
+      .speed-anchors {
+        display: flex;
+        justify-content: space-between;
+        margin-top: -2px;
+        color: var(--muted);
+        font-size: 11px;
       }
 
       .segmented-control {
@@ -441,13 +449,16 @@
         position: absolute;
         inset: 0;
         background:
-          linear-gradient(180deg, rgba(2, 6, 7, 0.76), rgba(2, 6, 7, 0.34) 24%, rgba(2, 6, 7, 0.3) 76%, rgba(2, 6, 7, 0.74)),
+          radial-gradient(ellipse 42% 32% at 50% 28%, transparent 0%, rgba(2, 6, 7, 0.18) 45%, rgba(2, 6, 7, 0.45) 75%, rgba(2, 6, 7, 0.7) 100%),
           rgba(0, 0, 0, var(--camera-overlay-opacity));
       }
 
       .prompt-stage {
         position: absolute;
-        inset: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50vh;
         display: flex;
         flex-direction: column;
       }
@@ -485,6 +496,41 @@
         font-variant-numeric: tabular-nums;
       }
 
+      .prompt-frame-row {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 14px 8px;
+      }
+
+      .frame-chip {
+        min-height: 34px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.32);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+        cursor: pointer;
+        transition:
+          background 160ms ease,
+          border-color 160ms ease,
+          color 160ms ease;
+      }
+
+      .frame-chip:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--ink);
+      }
+
+      .frame-chip.is-active {
+        background: rgba(154, 210, 197, 0.2);
+        border-color: rgba(154, 210, 197, 0.34);
+        color: var(--accent-strong);
+      }
+
       .prompt-viewport {
         position: relative;
         flex: 1;
@@ -494,7 +540,7 @@
       .prompt-track {
         width: min(86vw, 920px);
         margin: 0 auto;
-        padding: 38vh 0 34vh;
+        padding: 5vh 0 7vh;
         transform: translateY(0);
         will-change: transform;
       }
@@ -542,11 +588,59 @@
         backdrop-filter: blur(18px);
       }
 
+      /* auto-hide */
+      .prompter-idle .prompt-toolbar,
+      .prompter-idle .prompt-frame-row,
+      .prompter-idle .prompt-bottom {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .prompt-toolbar,
+      .prompt-frame-row {
+        transition: opacity 500ms ease;
+      }
+
+      .prompt-bottom {
+        transition: opacity 500ms ease;
+      }
+
+      /* gaze guide dot */
+      .gaze-dot {
+        position: fixed;
+        left: 50%;
+        top: calc(env(safe-area-inset-top, 0px) + 36px);
+        transform: translate(-50%, -50%);
+        z-index: 25;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(154, 210, 197, 0.7);
+        box-shadow: 0 0 12px rgba(154, 210, 197, 0.35);
+        pointer-events: none;
+        transition: opacity 500ms ease;
+      }
+
+      .prompter-idle .gaze-dot {
+        opacity: 0.85;
+      }
+
+      /* speed pulse */
+      @keyframes speed-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.12); color: var(--accent-strong); }
+        100% { transform: scale(1); }
+      }
+
+      .speed-pulse {
+        animation: speed-pulse 320ms ease-out;
+      }
+
       .camera-status {
         position: absolute;
         left: 50%;
-        bottom: calc(108px + env(safe-area-inset-bottom));
-        transform: translateX(-50%);
+        top: 0;
+        transform: translate(-50%, -50%);
         width: min(90vw, 680px);
         padding: 14px 16px;
         border-radius: 18px;
@@ -598,8 +692,6 @@
 
         .prompt-track {
           width: min(90vw, 920px);
-          padding-top: 36vh;
-          padding-bottom: 32vh;
         }
 
         .prompt-content {
@@ -607,22 +699,95 @@
         }
 
         .prompt-toolbar {
-          align-items: flex-start;
-          flex-direction: column;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 20;
+          flex-direction: row;
+          align-items: center;
+          padding-top: max(2px, env(safe-area-inset-top));
+          padding-right: 10px;
+          padding-bottom: 6px;
+          padding-left: 10px;
+          gap: 6px;
+          background: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.25) 80%, transparent);
         }
 
         .toolbar-group {
-          width: 100%;
+          width: auto;
+          gap: 6px;
         }
 
         .toolbar-group .ghost-action,
         .toolbar-group .secondary-action {
-          flex: 1;
+          flex: none;
+          min-height: 32px;
+          padding: 0 10px;
+          font-size: 11px;
+        }
+
+        .toolbar-pill {
+          min-height: 28px;
+          padding: 0 8px;
+          font-size: 11px;
+          gap: 4px;
+        }
+
+        .prompt-frame-row {
+          position: fixed;
+          top: calc(48px + env(safe-area-inset-top));
+          left: 0;
+          right: 0;
+          z-index: 20;
+          padding: 0 10px 4px;
+          gap: 4px;
+        }
+
+        .frame-chip {
+          min-height: 28px;
+          padding: 0 10px;
+          font-size: 11px;
+        }
+
+        .prompt-bottom {
+          padding-bottom: calc(4px + env(safe-area-inset-bottom));
+        }
+
+        .control-dock {
+          padding: 6px;
+          gap: 4px;
+          border-radius: 20px;
         }
 
         .control-dock > button {
-          flex: 1 1 calc(50% - 10px);
-          min-width: 120px;
+          flex: 1 1 calc(50% - 4px);
+          min-width: 0;
+          min-height: 40px;
+          padding: 0 14px;
+          font-size: 13px;
+        }
+
+        .gaze-dot {
+          top: calc(env(safe-area-inset-top, 0px) + 36px);
+        }
+      }
+
+      @media (orientation: portrait) and (max-width: 640px) {
+        .camera-stage {
+          padding: 0;
+        }
+
+        .prompt-track {
+          width: min(92vw, 920px);
+          padding-top: 6vh;
+          padding-bottom: 44vh;
+        }
+
+        .camera-frame--wide,
+        .camera-frame--classic {
+          width: calc(100vw - 16px);
+          border-radius: 20px;
         }
       }
     </style>
@@ -663,9 +828,9 @@
               <label class="field">
                 <span class="field-label">
                   <span>字号</span>
-                  <span class="field-value" id="font-size-value">48 px</span>
+                  <span class="field-value" id="font-size-value">15 px</span>
                 </span>
-                <input id="font-size" type="range" min="30" max="84" step="1">
+                <input id="font-size" type="range" min="10" max="100" step="1">
               </label>
 
               <label class="field">
@@ -674,6 +839,11 @@
                   <span class="field-value" id="scroll-speed-value">36 px/s</span>
                 </span>
                 <input id="scroll-speed" type="range" min="12" max="120" step="1">
+                <span class="speed-anchors">
+                  <span>慢速练习</span>
+                  <span>正常语速</span>
+                  <span>快速演讲</span>
+                </span>
               </label>
 
               <label class="field">
@@ -733,6 +903,8 @@
           </div>
         </div>
 
+        <div class="gaze-dot" id="gaze-dot" aria-hidden="true"></div>
+
         <div class="prompt-stage">
           <header class="prompt-toolbar">
             <div class="toolbar-group">
@@ -751,6 +923,12 @@
             </div>
           </header>
 
+          <div class="prompt-frame-row" id="prompt-frame-row" role="group" aria-label="选择摄像头画幅">
+            <button class="frame-chip" type="button" data-frame-mode="full">铺满屏幕</button>
+            <button class="frame-chip" type="button" data-frame-mode="widescreen">16:9</button>
+            <button class="frame-chip" type="button" data-frame-mode="classic">4:3</button>
+          </div>
+
           <div class="prompt-viewport" id="prompt-viewport">
             <div class="prompt-track" id="prompt-track">
               <div class="prompt-content" id="prompt-content"></div>
@@ -763,6 +941,7 @@
             <div class="control-dock">
               <button class="primary-action" id="start-scroll" type="button">开始滚动</button>
               <button class="secondary-action" id="reset-scroll" type="button">回到顶部</button>
+              <button class="secondary-action hidden" id="rewind-scroll" type="button">回退 5 秒</button>
               <button class="secondary-action" id="speed-down" type="button">减速</button>
               <button class="secondary-action" id="speed-up" type="button">加速</button>
             </div>
@@ -787,7 +966,7 @@
 
       const defaultState = {
         text: defaultText,
-        fontSize: 48,
+        fontSize: 15,
         scrollSpeed: 36,
         overlayOpacity: 0.46,
         cameraFrameMode: "full",
@@ -834,17 +1013,20 @@
         speedDown: document.getElementById("speed-down"),
         speedUp: document.getElementById("speed-up"),
         cameraFramePill: document.getElementById("camera-frame-pill"),
-        speedPill: document.getElementById("speed-pill")
+        speedPill: document.getElementById("speed-pill"),
+        rewindsScroll: document.getElementById("rewind-scroll"),
+        gazeDot: document.getElementById("gaze-dot")
       };
 
       const cameraFrameButtons = Array.from(
-        elements.cameraFrameMode.querySelectorAll("[data-frame-mode]")
+        document.querySelectorAll("[data-frame-mode]")
       );
 
       let cameraStream = null;
       let animationFrameId = 0;
       let previousTimestamp = 0;
       let scrollLimit = 0;
+      let idleTimer = 0;
 
       function loadState() {
         try {
@@ -855,7 +1037,7 @@
           const parsed = JSON.parse(raw);
               return {
                 text: typeof parsed.text === "string" ? parsed.text : defaultText,
-                fontSize: clampNumber(parsed.fontSize, 30, 84, defaultState.fontSize),
+                fontSize: clampNumber(parsed.fontSize, 10, 100, defaultState.fontSize),
                 scrollSpeed: clampNumber(parsed.scrollSpeed, 12, 120, defaultState.scrollSpeed),
                 overlayOpacity: clampNumber(parsed.overlayOpacity, 0.15, 0.82, defaultState.overlayOpacity),
                 cameraFrameMode: normalizeCameraFrameMode(parsed.cameraFrameMode),
@@ -997,6 +1179,7 @@
         state.isPlaying = true;
         previousTimestamp = 0;
         elements.startScroll.textContent = "暂停滚动";
+        elements.rewindsScroll.classList.remove("hidden");
         animationFrameId = requestAnimationFrame(stepScroll);
       }
 
@@ -1004,10 +1187,17 @@
         state.isPlaying = false;
         previousTimestamp = 0;
         elements.startScroll.textContent = "开始滚动";
+        elements.rewindsScroll.classList.add("hidden");
         if (animationFrameId) {
           cancelAnimationFrame(animationFrameId);
           animationFrameId = 0;
         }
+      }
+
+      function pulseSpeedPill() {
+        elements.speedPill.classList.remove("speed-pulse");
+        void elements.speedPill.offsetWidth;
+        elements.speedPill.classList.add("speed-pulse");
       }
 
       function stepScroll(timestamp) {
@@ -1041,19 +1231,29 @@
       async function enterPrompter() {
         elements.editorShell.classList.add("hidden");
         elements.prompterScreen.classList.remove("hidden");
+        elements.prompterScreen.classList.remove("prompter-idle");
         renderPrompt();
         resetScroll();
         await syncCameraState();
-        requestFullscreenIfPossible();
+        resetIdleTimer();
+        startScroll();
+      }
+
+      function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        elements.prompterScreen.classList.remove("prompter-idle");
+        idleTimer = setTimeout(() => {
+          elements.prompterScreen.classList.add("prompter-idle");
+        }, 3200);
       }
 
       async function exitPrompter() {
+        clearTimeout(idleTimer);
         pauseScroll();
         elements.prompterScreen.classList.add("hidden");
         elements.editorShell.classList.remove("hidden");
         hideCameraStatus();
         stopCamera();
-        await exitFullscreenIfNeeded();
       }
 
       async function syncCameraState() {
@@ -1124,21 +1324,6 @@
         elements.cameraStatus.classList.remove("camera-status--warning");
       }
 
-      function requestFullscreenIfPossible() {
-        if (document.fullscreenElement || !document.documentElement.requestFullscreen) {
-          return;
-        }
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-
-      async function exitFullscreenIfNeeded() {
-        if (document.fullscreenElement && document.exitFullscreen) {
-          try {
-            await document.exitFullscreen();
-          } catch {}
-        }
-      }
-
       function bindEvents() {
         elements.scriptInput.addEventListener("input", () => {
           state.text = elements.scriptInput.value;
@@ -1149,7 +1334,7 @@
         });
 
         elements.fontSize.addEventListener("input", () => {
-          state.fontSize = clampNumber(elements.fontSize.value, 30, 84, state.fontSize);
+          state.fontSize = clampNumber(elements.fontSize.value, 10, 100, state.fontSize);
           updateSettingsLabels();
           renderPrompt();
           saveState();
@@ -1230,6 +1415,7 @@
           elements.scrollSpeed.value = String(state.scrollSpeed);
           updateSettingsLabels();
           saveState();
+          pulseSpeedPill();
         });
 
         elements.speedUp.addEventListener("click", () => {
@@ -1237,6 +1423,21 @@
           elements.scrollSpeed.value = String(state.scrollSpeed);
           updateSettingsLabels();
           saveState();
+          pulseSpeedPill();
+        });
+
+        elements.rewindsScroll.addEventListener("click", () => {
+          state.scrollOffset = Math.max(0, state.scrollOffset - state.scrollSpeed * 5);
+          applyScroll();
+          resetIdleTimer();
+        });
+
+        elements.prompterScreen.addEventListener("pointermove", () => {
+          resetIdleTimer();
+        });
+
+        elements.prompterScreen.addEventListener("pointerdown", () => {
+          resetIdleTimer();
         });
 
         window.addEventListener("resize", () => {
