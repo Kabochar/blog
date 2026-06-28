@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PP-OCRv6 Tiny · 浏览器端 OCR 工具</title>
+<script type="importmap">
+{
+  "imports": {
+    "@paddleocr/paddleocr-js": "https://esm.sh/@paddleocr/paddleocr-js@0.4.2",
+    "@paddleocr/paddleocr-js/viz": "https://esm.sh/@paddleocr/paddleocr-js@0.4.2/viz"
+  }
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: #0f0f11; color: #e4e4e7; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    width: 100%; max-width: 800px; padding: 28px 20px 0;
+    text-align: center;
+  }
+  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  header h1 span { color: #22c55e; }
+  header p { color: #a1a1aa; font-size: 13px; margin-top: 6px; }
+  .badge { display: inline-flex; gap: 8px; margin-top: 8px; font-size: 11px; }
+  .badge span {
+    padding: 2px 10px; border-radius: 999px; background: #1a1a2e;
+    border: 1px solid #27272a; color: #a1a1aa;
+  }
+  .badge .green { color: #22c55e; border-color: #22c55e33; background: #22c55e11; }
+
+  main { width: 100%; max-width: 800px; padding: 20px; flex: 1; }
+
+  /* Drop zone */
+  #dropzone {
+    border: 2px dashed #27272a; border-radius: 16px; padding: 48px 20px;
+    text-align: center; cursor: pointer; transition: all .2s;
+    background: #18181b;
+  }
+  #dropzone:hover, #dropzone.dragover {
+    border-color: #22c55e; background: #22c55e08;
+  }
+  #dropzone .icon { font-size: 40px; line-height: 1; margin-bottom: 12px; }
+  #dropzone p { color: #a1a1aa; font-size: 14px; }
+  #dropzone .sub { font-size: 12px; color: #52525b; margin-top: 6px; }
+  #dropzone input[type="file"] { display: none; }
+
+  /* Status bar */
+  #status {
+    margin-top: 12px; padding: 10px 16px; border-radius: 10px;
+    font-size: 13px; display: none; align-items: center; gap: 8px;
+  }
+  #status.loading { display: flex; background: #1a3a3a; color: #5eead4; }
+  #status.loading::before { content: ""; width: 14px; height: 14px; border: 2px solid #5eead4; border-top-color: transparent; border-radius: 50%; animation: spin .8s linear infinite; }
+  #status.ready { display: flex; background: #1a3a1a; color: #86efac; }
+  #status.error { display: flex; background: #3a1a1a; color: #fca5a5; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Image + overlay */
+  #result-area { margin-top: 16px; display: none; position: relative; }
+  #result-area.visible { display: block; }
+  #result-area canvas { width: 100%; border-radius: 12px; border: 1px solid #27272a; display: block; }
+
+  /* Metrics bar */
+  #metrics {
+    display: none; margin-top: 10px; padding: 10px 16px;
+    background: #18181b; border-radius: 10px; border: 1px solid #27272a;
+    font-size: 12px; color: #a1a1aa; gap: 16px; flex-wrap: wrap;
+  }
+  #metrics.visible { display: flex; }
+  #metrics .m { white-space: nowrap; }
+  #metrics .m strong { color: #e4e4e7; }
+
+  /* Text results */
+  #text-results {
+    display: none; margin-top: 12px;
+    background: #18181b; border-radius: 12px; border: 1px solid #27272a;
+    padding: 16px;
+  }
+  #text-results.visible { display: block; }
+  #text-results h3 { font-size: 13px; color: #a1a1aa; margin-bottom: 10px; font-weight: 500; }
+  #text-results pre {
+    font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all;
+    color: #e4e4e7; font-family: inherit; max-height: 400px; overflow-y: auto;
+  }
+  #text-results pre .b { background: #22c55e22; padding: 0 2px; border-radius: 2px; }
+
+  /* Init button */
+  #init-area { text-align: center; margin-top: 20px; }
+  #init-btn {
+    padding: 12px 32px; border: none; border-radius: 10px;
+    background: #22c55e; color: #000; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+  }
+  #init-btn:hover { background: #16a34a; }
+  #init-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  #model-select {
+    margin-top: 12px; display: inline-flex; gap: 8px;
+  }
+  #model-select label {
+    padding: 4px 14px; border-radius: 999px; font-size: 12px;
+    border: 1px solid #27272a; cursor: pointer; transition: all .2s;
+    color: #a1a1aa; background: transparent;
+  }
+  #model-select input { display: none; }
+  #model-select input:checked + label {
+    border-color: #22c55e; color: #22c55e; background: #22c55e11;
+  }
+
+  footer {
+    text-align: center; padding: 20px; font-size: 11px; color: #52525b;
+    width: 100%; max-width: 800px;
+  }
+  footer a { color: #71717a; text-decoration: none; }
+  footer a:hover { color: #a1a1aa; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔍 PP-OCRv6 <span>Tiny</span></h1>
+  <p>浏览器端本地 OCR · 数据不出设备 · 97ms 推理</p>
+  <div class="badge">
+    <span class="green">1.5MB 模型</span>
+    <span>50+ 语言</span>
+    <span>CPU 运行</span>
+  </div>
+</header>
+
+<main>
+  <!-- Model selection & init -->
+  <div id="init-area">
+    <div id="model-select">
+      <input type="radio" name="model" id="m-tiny" value="PP-OCRv6_tiny" checked>
+      <label for="m-tiny">🌱 Tiny (1.5MB)</label>
+      <input type="radio" name="model" id="m-small" value="PP-OCRv6_small">
+      <label for="m-small">🌿 Small</label>
+      <input type="radio" name="model" id="m-medium" value="PP-OCRv6">
+      <label for="m-medium">🌳 Medium (34.5M)</label>
+    </div>
+    <button id="init-btn">⚡ 加载 OCR 模型</button>
+    <p style="margin-top:10px;font-size:12px;color:#52525b">首次加载会下载模型文件 (~1.5MB)，后续无需联网</p>
+  </div>
+
+  <!-- Drop zone -->
+  <div id="dropzone" style="display:none">
+    <div class="icon">📄</div>
+    <p>拖拽图片到此处，或 <strong>点击选择</strong></p>
+    <p class="sub">支持 JPG / PNG / WebP / BMP</p>
+    <input type="file" id="file-input" accept="image/*">
+  </div>
+
+  <!-- Status bar -->
+  <div id="status"></div>
+
+  <!-- Result: image overlay -->
+  <div id="result-area">
+    <canvas id="ocr-canvas"></canvas>
+  </div>
+
+  <!-- Metrics -->
+  <div id="metrics">
+    <span class="m">检测耗时: <strong id="det-ms">-</strong>ms</span>
+    <span class="m">识别耗时: <strong id="rec-ms">-</strong>ms</span>
+    <span class="m">总计: <strong id="total-ms">-</strong>ms</span>
+    <span class="m">检测框: <strong id="box-cnt">-</strong></span>
+    <span class="m">识别文字: <strong id="rec-cnt">-</strong></span>
+  </div>
+
+  <!-- Text results -->
+  <div id="text-results">
+    <h3>📝 识别文本</h3>
+    <pre id="ocr-text"></pre>
+  </div>
+</main>
+
+<footer>
+  <a href="https://github.com/PaddlePaddle/PaddleOCR" target="_blank">PaddleOCR</a>
+  · <a href="https://paddleocr.com" target="_blank">paddleocr.com</a>
+  · PP-OCRv6 · 本地运行 · 数据零外泄
+</footer>
+
+<script type="module">
+  import { PaddleOCR } from '@paddleocr/paddleocr-js';
+  import { OcrVisualizer } from '@paddleocr/paddleocr-js/viz';
+
+  // DOM refs
+  const initArea = document.getElementById('init-area');
+  const initBtn = document.getElementById('init-btn');
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('file-input');
+  const status = document.getElementById('status');
+  const resultArea = document.getElementById('result-area');
+  const canvas = document.getElementById('ocr-canvas');
+  const metrics = document.getElementById('metrics');
+  const textResults = document.getElementById('text-results');
+  const ocrText = document.getElementById('ocr-text');
+  const detMs = document.getElementById('det-ms');
+  const recMs = document.getElementById('rec-ms');
+  const totalMs = document.getElementById('total-ms');
+  const boxCnt = document.getElementById('box-cnt');
+  const recCnt = document.getElementById('rec-cnt');
+
+  let ocr = null;
+  let viz = null;
+
+  function setStatus(type, msg) {
+    status.className = type;
+    status.textContent = msg;
+  }
+
+  // --- Model loading ---
+  initBtn.addEventListener('click', async () => {
+    const modelRadio = document.querySelector('input[name="model"]:checked');
+    const modelVal = modelRadio ? modelRadio.value : 'PP-OCRv6_tiny';
+
+    initBtn.disabled = true;
+    initBtn.textContent = '⏳ 下载模型中...';
+    setStatus('loading', '正在下载 OCR 模型… 首次加载约需几秒');
+
+    try {
+      let detModel, recModel;
+      if (modelVal === 'PP-OCRv6_tiny') {
+        detModel = 'PP-OCRv6_tiny_det';
+        recModel = 'PP-OCRv6_tiny_rec';
+      } else if (modelVal === 'PP-OCRv6_small') {
+        detModel = 'PP-OCRv6_small_det';
+        recModel = 'PP-OCRv6_small_rec';
+      } else {
+        detModel = 'PP-OCRv6_mobile_det';
+        recModel = 'PP-OCRv6_mobile_rec';
+      }
+
+      ocr = await PaddleOCR.create({
+        textDetectionModelName: detModel,
+        textRecognitionModelName: recModel,
+        worker: true,
+        ortOptions: {
+          backend: 'wasm',
+          wasmPaths: 'https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/',
+          numThreads: 2,
+          simd: true
+        }
+      });
+
+      setStatus('ready', `✅ ${modelVal} 模型加载完成！拖拽或选择图片开始识别`);
+      initArea.style.display = 'none';
+      dropzone.style.display = 'block';
+
+      // Pre-create visualizer with CJK font
+      viz = new OcrVisualizer({
+        font: { family: 'Noto Sans SC, sans-serif' }
+      });
+    } catch (err) {
+      console.error('Init failed:', err);
+      setStatus('error', `❌ 模型加载失败: ${err.message}`);
+      initBtn.disabled = false;
+      initBtn.textContent = '⚡ 重新加载';
+    }
+  });
+
+  // --- File handling ---
+  async function handleFile(file) {
+    if (!ocr) return;
+    if (!file.type.startsWith('image/')) {
+      setStatus('error', '❌ 请选择图片文件');
+      return;
+    }
+
+    setStatus('loading', '🔍 正在识别…');
+
+    try {
+      const bitmap = await createImageBitmap(file);
+
+      // Run OCR
+      const [result] = await ocr.predict(bitmap);
+
+      // Draw overlay
+      const ctx = canvas.getContext('2d');
+      canvas.width = result.image.width;
+      canvas.height = result.image.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bitmap, 0, 0);
+
+      // Draw bounding boxes
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = 'rgba(34, 197, 94, 0.15)';
+      for (const item of result.items) {
+        ctx.beginPath();
+        const pts = item.poly;
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i][0], pts[i][1]);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // Draw text labels
+      ctx.font = '14px "Noto Sans SC", sans-serif';
+      ctx.textBaseline = 'top';
+      for (const item of result.items) {
+        const [x, y] = item.poly[0];
+        // Background for text
+        const tw = ctx.measureText(item.text).width;
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillRect(x, y - 18, tw + 8, 22);
+        ctx.fillStyle = '#22c55e';
+        ctx.fillText(item.text, x + 4, y - 16);
+      }
+
+      // Show result area
+      resultArea.classList.add('visible');
+      bitmap.close();
+
+      // Update metrics
+      if (result.metrics) {
+        detMs.textContent = result.metrics.detMs?.toFixed(1) ?? '-';
+        recMs.textContent = result.metrics.recMs?.toFixed(1) ?? '-';
+        totalMs.textContent = result.metrics.totalMs?.toFixed(1) ?? '-';
+        boxCnt.textContent = result.metrics.detectedBoxes ?? result.items.length;
+        recCnt.textContent = result.metrics.recognizedCount ?? result.items.length;
+      }
+      metrics.classList.add('visible');
+
+      // Text results
+      if (result.items.length > 0) {
+        const lines = result.items
+          .map((item, i) => `[${i + 1}] ${item.text}  (置信度: ${(item.score * 100).toFixed(1)}%)`)
+          .join('\n');
+        // Also show plain concatenated text
+        const plain = result.items.map(item => item.text).join('');
+        ocrText.innerHTML = `\
+          <div style="margin-bottom:10px;padding:8px 12px;background:#22c55e11;border-radius:8px;font-size:15px">${escapeHtml(plain)}</div>
+          <div style="opacity:.6;font-size:12px;margin-bottom:6px">逐项详情：</div>
+          ${lines.split('\n').map(l => `<span class="b">${escapeHtml(l)}</span><br>`).join('')}
+        `;
+      } else {
+        ocrText.textContent = '未识别到文字';
+      }
+      textResults.classList.add('visible');
+
+      setStatus('ready', `✅ 识别完成 — ${result.items.length} 个文字区域`);
+    } catch (err) {
+      console.error('OCR failed:', err);
+      setStatus('error', `❌ 识别失败: ${err.message}`);
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Dropzone events
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dragover');
+  });
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) handleFile(file);
+  });
+
+  console.log('PP-OCRv6 Tiny Tool ready — click "加载 OCR 模型" to start');
+</script>
+</body>
+</html>
